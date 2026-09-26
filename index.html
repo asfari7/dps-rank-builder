@@ -168,6 +168,11 @@
         font-size: 12px;
         font-weight: 700;
       }
+      .team-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
       .team-form {
         margin-bottom: 18px;
         padding: 13px;
@@ -354,6 +359,20 @@
       .add-member:hover {
         color: var(--blue);
         border-color: var(--blue);
+      }
+      .add-team {
+        width: 100%;
+        margin-top: 2px;
+        padding: 11px;
+        border: 1px solid var(--ink);
+        border-radius: 9px;
+        color: #fff;
+        background: var(--ink);
+        font-size: 12px;
+        font-weight: 700;
+      }
+      .add-team:hover {
+        background: var(--blue);
       }
       .tip {
         margin-top: 17px;
@@ -665,6 +684,9 @@
               placeholder="Contoh: Asfari"
           /></label>
           <div id="teamEditors" class="team-editor"></div>
+          <button class="add-team" id="addTeamBtn" type="button">
+            + Tambah tim
+          </button>
           <div class="tip">
             <strong>Tip:</strong> Isi Cost dan DPS secara manual. Ranking selalu
             diurutkan dari nilai DPS terbesar.

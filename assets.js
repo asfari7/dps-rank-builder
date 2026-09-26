@@ -1896,6 +1896,7 @@ const artifactOptions = window.assetCatalog.artifacts.map(({ id, label }) => [
   label,
 ])
 const constellationOptions = [0, 1, 2, 3, 4, 5, 6]
+const maxTeams = 8
 const assetFiles = Object.fromEntries(
   Object.entries(window.assetCatalog).map(([type, assets]) => [
     type,
@@ -1931,9 +1932,13 @@ function renderEditors() {
   document.querySelector("#teamEditors").innerHTML = teams
     .map(
       (team, teamIndex) =>
-        `<div class="team-form" data-team="${teamIndex}"><div class="editor-head"><strong>Team utama</strong></div><div class="form-row"><label>DPS satu tim<input class="team-dps" type="number" min="0" step="100" value="${team.dps}"></label><label>Cost<input class="team-cost" type="number" min="0" step="1" value="${team.cost}"></label></div><div class="member-list">${team.members.map((member, memberIndex) => `<div class="member-row" data-member="${memberIndex}"><span class="slot"><img data-asset-type="characters" src="${characterFile(member[0])}" alt=""></span><label>Karakter${editorAssetMarkup("characters", member[0], characterOptions)}</label><label>Senjata${editorAssetMarkup("weapons", member[1], weaponOptions)}</label><label>Artefak${editorAssetMarkup("artifacts", member[2], artifactOptions)}</label><label>KONSTELASI<select class="constellation-select">${constellationOptions.map((value) => `<option value="${value}" ${value === member[3] ? "selected" : ""}>C${value}</option>`).join("")}</select></label><button class="remove-member" type="button" aria-label="Hapus anggota">&times;</button></div>`).join("")}</div>${team.members.length < 4 ? '<button class="add-member" type="button">+ Tambah anggota</button>' : '<div class="tip" style="margin-top:9px">Maksimal 4 karakter per tim.</div>'}</div>`,
+        `<div class="team-form" data-team="${teamIndex}"><div class="editor-head"><strong>Team ${teamIndex + 1}</strong><div class="team-actions">${teams.length > 1 ? '<button class="text-button remove-team" type="button">Hapus tim</button>' : ""}</div></div><div class="form-row"><label>DPS satu tim<input class="team-dps" type="number" min="0" step="100" value="${team.dps}"></label><label>Cost<input class="team-cost" type="number" min="0" step="1" value="${team.cost}"></label></div><div class="member-list">${team.members.map((member, memberIndex) => `<div class="member-row" data-member="${memberIndex}"><span class="slot"><img data-asset-type="characters" src="${characterFile(member[0])}" alt=""></span><label>Karakter${editorAssetMarkup("characters", member[0], characterOptions)}</label><label>Senjata${editorAssetMarkup("weapons", member[1], weaponOptions)}</label><label>Artefak${editorAssetMarkup("artifacts", member[2], artifactOptions)}</label><label>KONSTELASI<select class="constellation-select">${constellationOptions.map((value) => `<option value="${value}" ${value === member[3] ? "selected" : ""}>C${value}</option>`).join("")}</select></label><button class="remove-member" type="button" aria-label="Hapus anggota">&times;</button></div>`).join("")}</div>${team.members.length < 4 ? '<button class="add-member" type="button">+ Tambah anggota</button>' : '<div class="tip" style="margin-top:9px">Maksimal 4 karakter per tim.</div>'}</div>`,
     )
     .join("")
+  const addTeamButton = document.querySelector("#addTeamBtn")
+  addTeamButton.disabled = teams.length >= maxTeams
+  addTeamButton.textContent =
+    teams.length >= maxTeams ? "Maksimal 8 tim" : "+ Tambah tim"
 }
 function renderCanvas() {
   saveLocalData()
@@ -1980,7 +1985,7 @@ function saveJson() {
 function normalizeImportedData(data) {
   if (!data || !Array.isArray(data.teams))
     throw new Error("Format JSON tidak valid.")
-  const importedTeams = data.teams.slice(0, 1).map((team) => ({
+  const importedTeams = data.teams.slice(0, maxTeams).map((team) => ({
     dps: Number(team.dps) || 0,
     cost: Number.isFinite(Number(team.cost))
       ? Number(team.cost)
@@ -2022,7 +2027,7 @@ function loadLocalData() {
     if (!saved) return
     const data = normalizeImportedData(JSON.parse(saved))
     accountName = data.accountName
-    teams = data.teams.slice(0, 1)
+    teams = data.teams.slice(0, maxTeams)
   } catch (error) {
     localStorage.removeItem(localDataKey)
   }
@@ -2232,6 +2237,9 @@ document.querySelector("#teamEditors").addEventListener("click", (event) => {
         0,
       ])
     refresh()
+  } else if (event.target.classList.contains("remove-team")) {
+    teams.splice(teamIndex, 1)
+    refresh()
   } else if (event.target.classList.contains("remove-member")) {
     syncTeam(form)
     teams[teamIndex].members.splice(
@@ -2240,6 +2248,15 @@ document.querySelector("#teamEditors").addEventListener("click", (event) => {
     )
     refresh()
   }
+})
+document.querySelector("#addTeamBtn").addEventListener("click", () => {
+  if (teams.length >= maxTeams) return
+  teams.push({
+    dps: 0,
+    cost: 0,
+    members: [["skirk", "aqua-simulacra", "gladiators-finale", 0]],
+  })
+  refresh()
 })
 document.querySelector("#resetBtn").addEventListener("click", () => {
   teams = [
