@@ -703,6 +703,11 @@ window.assetCatalog = {
       file: "asset/weapon-icons/aquila-favonia.png",
     },
     {
+      id: "azurelight",
+      label: "Azurelight",
+      file: "asset/weapon-icons/azurelight.png",
+    },
+    {
       id: "ballad-of-the-boundless-blue",
       label: "Ballad Of The Boundless Blue",
       file: "asset/weapon-icons/ballad-of-the-boundless-blue.png",
@@ -1912,24 +1917,6 @@ let teams = [
       ["kazuha", "freedom-sworn", "viridescent-venerer", 0],
     ],
   },
-  {
-    dps: 164300,
-    cost: 10,
-    members: [
-      ["mavuika", "wolfs-gravestone", "crimson-witch-of-flames", 6],
-      ["furina", "splendor-of-tranquil-waters", "golden-troupe", 2],
-      ["xilonen", "favonius-sword", "scroll-of-the-hero-of-cinder-city", 2],
-    ],
-  },
-  {
-    dps: 186700,
-    cost: 7,
-    members: [
-      ["neuvillette", "tome-of-the-eternal-flow", "marechaussee-hunter", 1],
-      ["furina", "splendor-of-tranquil-waters", "golden-troupe", 6],
-      ["kazuha", "freedom-sworn", "viridescent-venerer", 0],
-    ],
-  },
 ]
 const optionMarkup = (items, selected) =>
   items
@@ -1938,11 +1925,13 @@ const optionMarkup = (items, selected) =>
         `<option value="${value}" ${value === selected ? "selected" : ""}>${label}</option>`,
     )
     .join("")
+const editorAssetMarkup = (type, value, options) =>
+  `<div class="asset-picker"><button class="asset-picker-toggle" type="button"><img data-asset-type="${type}" src="${assetFiles[type][value]}" alt=""><span>${options.find(([optionValue]) => optionValue === value)?.[1] || value}</span></button><div class="asset-options">${options.map(([optionValue, label]) => `<button class="asset-option ${optionValue === value ? "selected" : ""}" type="button" data-value="${optionValue}"><img src="${assetFiles[type][optionValue]}" alt=""><span>${label}</span></button>`).join("")}</div><select class="${type.slice(0, -1)}-select" hidden>${optionMarkup(options, value)}</select></div>`
 function renderEditors() {
   document.querySelector("#teamEditors").innerHTML = teams
     .map(
       (team, teamIndex) =>
-        `<div class="team-form" data-team="${teamIndex}"><div class="editor-head"><strong>Team ${teamIndex + 1}</strong><button class="text-button delete-team" type="button">Hapus tim</button></div><div class="form-row"><label>DPS satu tim<input class="team-dps" type="number" min="0" step="100" value="${team.dps}"></label><label>Cost<input class="team-cost" type="number" min="0" step="1" value="${team.cost}"></label></div><div class="member-list">${team.members.map((member, memberIndex) => `<div class="member-row" data-member="${memberIndex}"><span class="slot"><img src="${characterFile(member[0])}" alt=""></span><label>Karakter<select class="character-select">${optionMarkup(characterOptions, member[0])}</select></label><label>Senjata<select class="weapon-select">${optionMarkup(weaponOptions, member[1])}</select></label><label>Artefak<select class="artifact-select">${optionMarkup(artifactOptions, member[2])}</select></label><label>C<select class="constellation-select">${constellationOptions.map((value) => `<option value="${value}" ${value === member[3] ? "selected" : ""}>C${value}</option>`).join("")}</select></label><button class="remove-member" type="button" aria-label="Hapus anggota">&times;</button></div>`).join("")}</div>${team.members.length < 4 ? '<button class="add-member" type="button">+ Tambah anggota</button>' : '<div class="tip" style="margin-top:9px">Maksimal 4 karakter per tim.</div>'}</div>`,
+        `<div class="team-form" data-team="${teamIndex}"><div class="editor-head"><strong>Team utama</strong></div><div class="form-row"><label>DPS satu tim<input class="team-dps" type="number" min="0" step="100" value="${team.dps}"></label><label>Cost<input class="team-cost" type="number" min="0" step="1" value="${team.cost}"></label></div><div class="member-list">${team.members.map((member, memberIndex) => `<div class="member-row" data-member="${memberIndex}"><span class="slot"><img data-asset-type="characters" src="${characterFile(member[0])}" alt=""></span><label>Karakter${editorAssetMarkup("characters", member[0], characterOptions)}</label><label>Senjata${editorAssetMarkup("weapons", member[1], weaponOptions)}</label><label>Artefak${editorAssetMarkup("artifacts", member[2], artifactOptions)}</label><label>KONSTELASI<select class="constellation-select">${constellationOptions.map((value) => `<option value="${value}" ${value === member[3] ? "selected" : ""}>C${value}</option>`).join("")}</select></label><button class="remove-member" type="button" aria-label="Hapus anggota">&times;</button></div>`).join("")}</div>${team.members.length < 4 ? '<button class="add-member" type="button">+ Tambah anggota</button>' : '<div class="tip" style="margin-top:9px">Maksimal 4 karakter per tim.</div>'}</div>`,
     )
     .join("")
 }
@@ -1991,7 +1980,7 @@ function saveJson() {
 function normalizeImportedData(data) {
   if (!data || !Array.isArray(data.teams))
     throw new Error("Format JSON tidak valid.")
-  const importedTeams = data.teams.map((team) => ({
+  const importedTeams = data.teams.slice(0, 1).map((team) => ({
     dps: Number(team.dps) || 0,
     cost: Number.isFinite(Number(team.cost))
       ? Number(team.cost)
@@ -2033,7 +2022,7 @@ function loadLocalData() {
     if (!saved) return
     const data = normalizeImportedData(JSON.parse(saved))
     accountName = data.accountName
-    teams = data.teams
+    teams = data.teams.slice(0, 1)
   } catch (error) {
     localStorage.removeItem(localDataKey)
   }
@@ -2185,19 +2174,55 @@ document.querySelector("#teamEditors").addEventListener("change", (event) => {
   const row = event.target.closest(".member-row")
   if (form && row) {
     syncTeam(form)
-    if (event.target.classList.contains("character-select"))
-      row.querySelector("img").src = characterFile(event.target.value)
+    const assetType = event.target.classList.contains("character-select")
+      ? "characters"
+      : event.target.classList.contains("weapon-select")
+        ? "weapons"
+        : event.target.classList.contains("artifact-select")
+          ? "artifacts"
+          : null
+    if (assetType) {
+      row
+        .querySelectorAll(`img[data-asset-type="${assetType}"]`)
+        .forEach((image) => {
+          image.src = assetFiles[assetType][event.target.value]
+        })
+      const picker = event.target.closest(".asset-picker")
+      picker.querySelector(".asset-picker-toggle span").textContent =
+        event.target.selectedOptions[0].textContent
+      picker.querySelectorAll(".asset-option").forEach((option) => {
+        option.classList.toggle(
+          "selected",
+          option.dataset.value === event.target.value,
+        )
+      })
+    }
     renderCanvas()
   }
 })
 document.querySelector("#teamEditors").addEventListener("click", (event) => {
+  const pickerToggle = event.target.closest(".asset-picker-toggle")
+  const assetOption = event.target.closest(".asset-option")
+  if (pickerToggle) {
+    const picker = pickerToggle.closest(".asset-picker")
+    document.querySelectorAll(".asset-picker.open").forEach((item) => {
+      if (item !== picker) item.classList.remove("open")
+    })
+    picker.classList.toggle("open")
+    return
+  }
+  if (assetOption) {
+    const picker = assetOption.closest(".asset-picker")
+    const select = picker.querySelector("select")
+    select.value = assetOption.dataset.value
+    picker.classList.remove("open")
+    select.dispatchEvent(new Event("change", { bubbles: true }))
+    return
+  }
   const form = event.target.closest(".team-form")
   if (!form) return
   const teamIndex = Number(form.dataset.team)
-  if (event.target.classList.contains("delete-team")) {
-    teams.splice(teamIndex, 1)
-    refresh()
-  } else if (event.target.classList.contains("add-member")) {
+  if (event.target.classList.contains("add-member")) {
     syncTeam(form)
     if (teams[teamIndex].members.length < 4)
       teams[teamIndex].members.push([
@@ -2216,16 +2241,14 @@ document.querySelector("#teamEditors").addEventListener("click", (event) => {
     refresh()
   }
 })
-document.querySelector("#addTeamBtn").addEventListener("click", () => {
-  teams.push({
-    dps: 0,
-    cost: 0,
-    members: [["skirk", "aqua-simulacra", "gladiators-finale", 0]],
-  })
-  refresh()
-})
 document.querySelector("#resetBtn").addEventListener("click", () => {
-  teams = []
+  teams = [
+    {
+      dps: 0,
+      cost: 0,
+      members: [["skirk", "aqua-simulacra", "gladiators-finale", 0]],
+    },
+  ]
   refresh()
 })
 document.querySelector("#saveJsonBtn").addEventListener("click", saveJson)
