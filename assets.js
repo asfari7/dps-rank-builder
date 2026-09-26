@@ -2274,6 +2274,53 @@ const characterName = (name) =>
     .replace(/\bMade\b/, "made")
     .replace(/\bA\b/, "a")
     .replace(/\bNew\b/, "new")
+const characterLabelOverrides = {
+  alhatham: "Alhaitham",
+  ambor: "Amber",
+  baizhuer: "Baizhu",
+  feiyan: "Yanfei",
+  heizo: "Shikanoin Heizou",
+  hutao: "Hu Tao",
+  liney: "Lyney",
+  linette: "Lynette",
+  liuyun: "Xianyun",
+  noel: "Noelle",
+  playerboy: "Traveler (Aether)",
+  playergirl: "Traveler (Lumine)",
+  qin: "Jean",
+  sara: "Kujou Sara",
+  shinobu: "Kuki Shinobu",
+  shougun: "Raiden Shogun",
+  tohma: "Thoma",
+  yae: "Yae Miko",
+  yunjin: "Yun Jin",
+  ayaka: "Kamisato Ayaka",
+  ayato: "Kamisato Ayato",
+  kazuha: "Kaedehara Kazuha",
+  kokomi: "Sangonomiya Kokomi",
+  itto: "Arataki Itto",
+  tartaglia: "Tartaglia (Childe)",
+  "ganyu-costume-yu": "Ganyu (Twilight Blossom)",
+  "shenhe-costume-dai": "Shenhe (Frostflower Dew)",
+  "xingqiu-costume-bamboo": "Xingqiu (Rain Bamboo)",
+  "barbara-skin": "Barbara (Summertime Sparkle)",
+  "jean-skin": "Jean (Sea Breeze Dandelion)",
+  "kaeya-2": "Kaeya (Sailwind Shadow)",
+  "klee-blossomingstarlight": "Klee (Blossoming Starlight)",
+  "citlali-whispers-of-stars-and-smoke": "Citlali (Stars and Smoke)",
+  "bennett-adventures-in-blazing-hue": "Bennett (Blazing Hue)",
+  "yaoyao-rainlit-bamboo-reverie": "Yaoyao (Rainlit Bamboo)",
+  "yelan-tranquil-banquet": "Yelan (Tranquil Banquet)",
+  "aether-as-heaven-and-earth-are-made-a-new": "Aether (Heaven & Earth)",
+  "lumine-as-heaven-and-earth-are-made-a-new": "Lumine (Heaven & Earth)",
+}
+
+window.assetCatalog.characters.forEach((char) => {
+  if (characterLabelOverrides[char.id]) {
+    char.label = characterLabelOverrides[char.id]
+  }
+})
+
 const characterOptions = window.assetCatalog.characters
   .map(({ id, label }) => [id, label])
   .sort(([, labelA], [, labelB]) =>
@@ -2285,16 +2332,59 @@ const formatItemName = (name) =>
     .replace(/\b\w/g, (letter) => letter.toUpperCase())
     .replace(/\bOf\b/g, "of")
     .replace(/\bThe\b/g, "the")
-const weaponOptions = window.assetCatalog.weapons.map(({ id, label }) => [
-  id,
-  label,
-])
-const artifactOptions = window.assetCatalog.artifacts.map(({ id, label }) => [
-  id,
-  label,
-])
+const weaponOptions = window.assetCatalog.weapons
+  .map(({ id, label }) => [id, label])
+  .sort(([, labelA], [, labelB]) =>
+    labelA.localeCompare(labelB, "id", { sensitivity: "base" }),
+  )
+const artifactOptions = window.assetCatalog.artifacts
+  .map(({ id, label }) => [id, label])
+  .sort(([, labelA], [, labelB]) =>
+    labelA.localeCompare(labelB, "id", { sensitivity: "base" }),
+  )
+
+const characterWeaponOverrides = {
+  sandrone: "claymore",
+  vesna: "sword",
+  odette: "sword",
+  vodyanitsa: "catalyst",
+  alyosha: "polearm",
+  linnea: "bow",
+  lohen: "polearm",
+  prune: "catalyst",
+}
+
+const extractWeaponType = (file) => {
+  const match = file.match(/-(sword|claymore|polearm|bow|catalyst)\.[^.]+$/i)
+  return match ? match[1].toLowerCase() : "sword"
+}
+
+const characterWeaponTypeMap = Object.fromEntries(
+  window.assetCatalog.characters.map(({ id, file }) => [
+    id,
+    characterWeaponOverrides[id] || extractWeaponType(file),
+  ]),
+)
+
+const weaponTypeMap = Object.fromEntries(
+  window.assetCatalog.weapons.map(({ id, file }) => [
+    id,
+    extractWeaponType(file),
+  ]),
+)
+
+const weaponOptionsByType = {
+  sword: weaponOptions.filter(([id]) => weaponTypeMap[id] === "sword"),
+  claymore: weaponOptions.filter(([id]) => weaponTypeMap[id] === "claymore"),
+  polearm: weaponOptions.filter(([id]) => weaponTypeMap[id] === "polearm"),
+  bow: weaponOptions.filter(([id]) => weaponTypeMap[id] === "bow"),
+  catalyst: weaponOptions.filter(([id]) => weaponTypeMap[id] === "catalyst"),
+}
+
 const constellationOptions = [0, 1, 2, 3, 4, 5, 6]
-const maxTeams = 8
+const refinementOptions = [1, 2, 3, 4, 5]
+const maxTeams = 20
+let collapsedTeams = new Set()
 const assetFiles = Object.fromEntries(
   Object.entries(window.assetCatalog).map(([type, assets]) => [
     type,
@@ -2310,10 +2400,10 @@ let teams = [
     dps: 203232,
     cost: 9,
     members: [
-      ["skirk", "aqua-simulacra", "blizzard-strayer", 6],
-      ["furina", "splendor-of-tranquil-waters", "golden-troupe", 2],
-      ["citlali", "mistsplitter-reforged", "tenacity-of-the-millelith", 1],
-      ["kazuha", "freedom-sworn", "viridescent-venerer", 0],
+      ["skirk", "mistsplitter-reforged", "blizzard-strayer", 6, 5],
+      ["furina", "splendor-of-tranquil-waters", "golden-troupe", 2, 1],
+      ["citlali", "starcaller-s-watch", "tenacity-of-the-millelith", 1, 1],
+      ["kazuha", "freedom-sworn", "viridescent-venerer", 0, 1],
     ],
   },
 ]
@@ -2324,19 +2414,48 @@ const optionMarkup = (items, selected) =>
         `<option value="${value}" ${value === selected ? "selected" : ""}>${label}</option>`,
     )
     .join("")
-const editorAssetMarkup = (type, value, options) =>
-  `<div class="asset-picker"><button class="asset-picker-toggle" type="button"><img data-asset-type="${type}" src="${assetFiles[type][value]}" alt=""><span>${options.find(([optionValue]) => optionValue === value)?.[1] || value}</span></button><div class="asset-options">${options.map(([optionValue, label]) => `<button class="asset-option ${optionValue === value ? "selected" : ""}" type="button" data-value="${optionValue}"><img src="${assetFiles[type][optionValue]}" alt=""><span>${label}</span></button>`).join("")}</div><select class="${type.slice(0, -1)}-select" hidden>${optionMarkup(options, value)}</select></div>`
+
+const getSearchPlaceholder = (type, subType) => {
+  if (type === "characters") return "Cari karakter..."
+  if (type === "weapons")
+    return subType ? `Cari senjata ${subType}...` : "Cari senjata..."
+  if (type === "artifacts") return "Cari artefak..."
+  return "Cari..."
+}
+
+const editorAssetMarkup = (type, value, options, subType) => {
+  const selectedLabel =
+    options.find(([optionValue]) => optionValue === value)?.[1] || value
+  const placeholder = getSearchPlaceholder(type, subType)
+  return `<div class="asset-picker" data-asset-type="${type}"><button class="asset-picker-toggle" type="button"><img data-asset-type="${type}" src="${assetFiles[type][value] || assetFiles[type][options[0]?.[0]]}" alt=""><span>${selectedLabel}</span></button><div class="asset-options"><div class="asset-search-wrapper"><svg class="asset-search-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg><input class="asset-search" type="text" placeholder="${placeholder}" autocomplete="off" spellcheck="false"></div><div class="asset-options-list">${options.map(([optionValue, label]) => `<button class="asset-option ${optionValue === value ? "selected" : ""}" type="button" data-value="${optionValue}" data-label="${label.replace(/"/g, "&quot;")}"><img src="${assetFiles[type][optionValue]}" alt=""><span>${label}</span></button>`).join("")}</div><div class="asset-no-result" style="display:none">Tidak ada hasil</div></div><select class="${type.slice(0, -1)}-select" hidden>${optionMarkup(options, value)}</select></div>`
+}
 function renderEditors() {
+  const toolbar = document.querySelector("#editorToolbar")
+  const mobileCount = document.querySelector("#mobileTeamCount")
+  if (mobileCount) {
+    mobileCount.textContent = teams.length
+  }
+  if (toolbar) {
+    toolbar.innerHTML = `<span class="count">${teams.length} / ${maxTeams} Team</span>`
+  }
   document.querySelector("#teamEditors").innerHTML = teams
     .map(
-      (team, teamIndex) =>
-        `<div class="team-form" data-team="${teamIndex}"><div class="editor-head"><strong>Team ${teamIndex + 1}</strong><div class="team-actions">${teams.length > 1 ? '<button class="text-button remove-team" type="button">Hapus tim</button>' : ""}</div></div><div class="form-row"><label>DPS satu tim<input class="team-dps" type="number" min="0" step="100" value="${team.dps}"></label><label>Cost<input class="team-cost" type="number" min="0" step="1" value="${team.cost}"></label></div><div class="member-list">${team.members.map((member, memberIndex) => `<div class="member-row" data-member="${memberIndex}"><span class="slot"><img data-asset-type="characters" src="${characterFile(member[0])}" alt=""></span><label>Karakter${editorAssetMarkup("characters", member[0], characterOptions)}</label><label>Senjata${editorAssetMarkup("weapons", member[1], weaponOptions)}</label><label>Artefak${editorAssetMarkup("artifacts", member[2], artifactOptions)}</label><label>KONSTELASI<select class="constellation-select">${constellationOptions.map((value) => `<option value="${value}" ${value === member[3] ? "selected" : ""}>C${value}</option>`).join("")}</select></label><button class="remove-member" type="button" aria-label="Hapus anggota">&times;</button></div>`).join("")}</div>${team.members.length < 4 ? '<button class="add-member" type="button">+ Tambah anggota</button>' : '<div class="tip" style="margin-top:9px">Maksimal 4 karakter per tim.</div>'}</div>`,
+      (team, teamIndex) => {
+        const isCollapsed = collapsedTeams.has(teamIndex)
+        return `<div class="team-form ${isCollapsed ? "collapsed" : ""}" data-team="${teamIndex}"><div class="editor-head team-toggle-head"><div class="team-title-wrap"><strong>Team ${teamIndex + 1}</strong>${isCollapsed ? `<span class="team-badge-dps">${team.dps.toLocaleString("id-ID")} DPS</span><span class="team-badge-cost">Cost ${team.cost}</span>` : ""}</div><div class="team-head-right">${isCollapsed ? `<div class="mini-roster">${team.members.map((m) => `<img src="${characterFile(m[0])}" alt="" title="${m[0]}">`).join("")}</div>` : ""}<button type="button" class="team-toggle-btn ${isCollapsed ? "is-collapsed" : "is-open"}"><span class="btn-arrow">${isCollapsed ? "▼" : "▲"}</span><span>${isCollapsed ? "Buka" : "Tutup"}</span></button>${!isCollapsed && teams.length > 1 ? '<button class="remove-team" type="button" title="Hapus tim" aria-label="Hapus tim"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>' : ""}</div></div><div class="form-row"><label>DPS satu tim<input class="team-dps" type="number" min="0" step="100" value="${team.dps}"></label><label>Cost<input class="team-cost" type="number" min="0" step="1" value="${team.cost}"></label></div><div class="member-list">${team.members.map((member, memberIndex) => {
+          const charType = characterWeaponTypeMap[member[0]] || "sword"
+          const allowedWeapons = weaponOptionsByType[charType] || weaponOptions
+          return `<div class="member-row" data-member="${memberIndex}"><span class="slot"><img data-asset-type="characters" src="${characterFile(member[0])}" alt=""></span><label>Karakter${editorAssetMarkup("characters", member[0], characterOptions)}</label><label>Senjata <span style="font-weight:400;opacity:0.7">(${charType})</span>${editorAssetMarkup("weapons", member[1], allowedWeapons, charType)}</label><label>Artefak${editorAssetMarkup("artifacts", member[2], artifactOptions)}</label><div class="member-levels"><label>KONSTELASI<select class="constellation-select">${constellationOptions.map((value) => `<option value="${value}" ${value === member[3] ? "selected" : ""}>C${value}</option>`).join("")}</select></label><label>REFINEMENT<select class="refinement-select">${refinementOptions.map((value) => `<option value="${value}" ${value === (member[4] ?? 1) ? "selected" : ""}>R${value}</option>`).join("")}</select></label></div><button class="remove-member" type="button" aria-label="Hapus anggota">&times;</button></div>`
+        }).join("")}</div>${team.members.length < 4 ? '<button class="add-member" type="button">+ Tambah anggota</button>' : '<div class="tip" style="margin-top:9px">Maksimal 4 karakter per tim.</div>'}</div>`
+      },
     )
     .join("")
   const addTeamButton = document.querySelector("#addTeamBtn")
   addTeamButton.disabled = teams.length >= maxTeams
   addTeamButton.textContent =
-    teams.length >= maxTeams ? "Maksimal 8 tim" : "+ Tambah tim"
+    teams.length >= maxTeams
+      ? "Sudah mencapai batas jumlah team"
+      : "+ Tambah tim"
 }
 function renderCanvas() {
   saveLocalData()
@@ -2344,24 +2463,19 @@ function renderCanvas() {
     .map((team, index) => ({ ...team, index }))
     .sort((a, b) => b.dps - a.dps)
   document.querySelector("#rankCanvas").innerHTML =
-    `<h2 class="canvas-title">DPS Rank <span>${accountName || "Akunku"}</span></h2><div class="rank-head"><span>#</span><span>Team</span><span>Cost</span><span>DPS</span></div>${rankedTeams.length ? rankedTeams.map((team, rank) => `<div class="rank-row"><span class="rank-number">${rank + 1}</span><div class="team-icons">${team.members.map((member) => `<div class="character-card"><img class="character" src="${characterFile(member[0])}" alt="${member[0]}"><img class="artifact" src="${artifactFile(member[2])}" alt="${member[2]}"><img class="weapon" src="${weaponFile(member[1])}" alt="${member[1]}"><span class="constellation">C${member[3]}</span></div>`).join("")}</div><span class="cost">${team.cost}</span><span class="dps">${team.dps.toLocaleString("id-ID")}</span></div>`).join("") : '<div class="empty-state">Belum ada tim. Tambahkan tim dari panel editor.</div>'}<div class="canvas-footer"><span>DPS RANK STUDIO / 2026</span><span>custom team leaderboard</span></div>`
+    `<h2 class="canvas-title">DPS Rank <span>${accountName || "Akunku"}</span></h2><div class="rank-head"><span>#</span><span>Team</span><span>Cost</span><span>DPS</span></div>${rankedTeams.length ? rankedTeams.map((team, rank) => `<div class="rank-row"><span class="rank-number">${rank + 1}</span><div class="team-icons">${team.members.map((member) => `<div class="character-card"><img class="character" src="${characterFile(member[0])}" alt="${member[0]}"><img class="artifact" src="${artifactFile(member[2])}" alt="${member[2]}"><img class="weapon" src="${weaponFile(member[1])}" alt="${member[1]}"><span class="constellation">C${member[3]}</span><span class="refinement">R${member[4] ?? 1}</span></div>`).join("")}</div><span class="cost">${team.cost}</span><span class="dps">${team.dps.toLocaleString("id-ID")}</span></div>`).join("") : '<div class="empty-state">Belum ada tim. Tambahkan tim dari panel editor.</div>'}<div class="canvas-footer"><span>DPS RANK STUDIO / 2026</span><span>custom team leaderboard</span></div>`
 }
 function syncTeam(form) {
   const team = teams[Number(form.dataset.team)]
   team.dps = Number(form.querySelector(".team-dps").value) || 0
   team.cost = Number(form.querySelector(".team-cost").value) || 0
   team.members = [...form.querySelectorAll(".member-row")].map((row) => {
-    const old = team.members[Number(row.dataset.member)] || [
-      "skirk",
-      "aqua-simulacra",
-      "gladiators-finale",
-      0,
-    ]
     return [
       row.querySelector(".character-select").value,
       row.querySelector(".weapon-select").value,
       row.querySelector(".artifact-select").value,
       Number(row.querySelector(".constellation-select").value),
+      Number(row.querySelector(".refinement-select")?.value || 1),
     ]
   })
 }
@@ -2396,12 +2510,22 @@ function normalizeImportedData(data) {
     members: Array.isArray(team.members)
       ? team.members
           .slice(0, 4)
-          .map((member) => [
-            member[0] || "skirk",
-            member[1] || "aqua-simulacra",
-            member[2] || "gladiators-finale",
-            Number(member[3]) || 0,
-          ])
+          .map((member) => {
+            const charId = member[0] || "skirk"
+            const charType = characterWeaponTypeMap[charId] || "sword"
+            const validWeps = weaponOptionsByType[charType] || weaponOptions
+            let wepId = member[1] || validWeps[0][0]
+            if (weaponTypeMap[wepId] !== charType) {
+              wepId = validWeps[0][0]
+            }
+            return [
+              charId,
+              wepId,
+              member[2] || "gladiators-finale",
+              Number(member[3]) || 0,
+              Math.max(1, Math.min(5, Number(member[4]) || 1)),
+            ]
+          })
       : [],
   }))
   return {
@@ -2440,6 +2564,7 @@ function importJson(event) {
       accountName = imported.accountName
       teams = imported.teams
       document.querySelector("#accountName").value = accountName
+      collapsedTeams = new Set(teams.map((_, i) => i))
       refresh()
     } catch (error) {
       window.alert(
@@ -2463,7 +2588,43 @@ function loadCanvasImage(src) {
         }),
     )
 }
+function setMobileTab(tab) {
+  const ws = document.querySelector(".workspace")
+  const tabs = document.querySelectorAll(".mobile-tab-btn")
+  if (!ws) return
+  ws.classList.remove("tab-builder", "tab-preview", "tab-all")
+  tabs.forEach((btn) => {
+    const isActive = btn.dataset.tab === tab
+    btn.classList.toggle("active", isActive)
+    if (isActive) {
+      btn.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" })
+    }
+  })
+  if (tab === "builder") {
+    ws.classList.add("tab-builder")
+  } else if (tab === "preview") {
+    ws.classList.add("tab-preview")
+    const previewEl = document.querySelector(".preview")
+    if (previewEl && window.innerWidth <= 900) {
+      previewEl.scrollIntoView({ behavior: "smooth", block: "start" })
+    }
+  } else if (tab === "all") {
+    ws.classList.add("tab-all")
+  }
+}
+
+async function ensurePreviewVisibleForCapture() {
+  const ws = document.querySelector(".workspace")
+  if (ws && ws.classList.contains("tab-builder") && window.innerWidth <= 900) {
+    setMobileTab("preview")
+    await new Promise((r) => setTimeout(r, 80))
+    return true
+  }
+  return false
+}
+
 async function downloadPreviewFallback() {
+  await ensurePreviewVisibleForCapture()
   const preview = document.querySelector("#rankCanvas")
   const bounds = preview.getBoundingClientRect()
   const width = preview.scrollWidth
@@ -2532,12 +2693,48 @@ async function downloadPreviewFallback() {
     const box = relative(image)
     context.drawImage(loaded, box.x, box.y, box.width, box.height)
   })
+  ;[...preview.querySelectorAll(".constellation, .refinement")].forEach((badge) => {
+    const box = relative(badge)
+    const style = getComputedStyle(badge)
+    const isRefinement = badge.classList.contains("refinement")
+    if (!isRefinement) {
+      context.fillStyle = style.backgroundColor
+      context.beginPath()
+      const radius = parseFloat(style.borderRadius) || 4
+      if (context.roundRect) {
+        context.roundRect(box.x, box.y, box.width, box.height, radius)
+      } else {
+        context.rect(box.x, box.y, box.width, box.height)
+      }
+      context.fill()
+    }
+    context.font = style.font
+    context.fillStyle = style.color
+    context.textAlign = "center"
+    context.textBaseline = "middle"
+    if (isRefinement) {
+      context.shadowColor = "rgba(0, 0, 0, 0.9)"
+      context.shadowBlur = 3
+      context.shadowOffsetX = 0
+      context.shadowOffsetY = 1
+    }
+    context.fillText(badge.textContent.trim(), box.x + box.width / 2, box.y + box.height / 2 + 0.5)
+    if (isRefinement) {
+      context.shadowColor = "transparent"
+      context.shadowBlur = 0
+      context.shadowOffsetX = 0
+      context.shadowOffsetY = 0
+    }
+    context.textAlign = "left"
+    context.textBaseline = "alphabetic"
+  })
   const link = document.createElement("a")
   link.download = `dps-rank-${(accountName || "preview").trim().replace(/\s+/g, "-").toLowerCase()}.png`
   link.href = canvas.toDataURL("image/png")
   link.click()
 }
 async function downloadPreview() {
+  await ensurePreviewVisibleForCapture()
   const preview = document.querySelector("#rankCanvas")
   if (typeof html2canvas !== "function") {
     await downloadPreviewFallback()
@@ -2566,10 +2763,59 @@ document.querySelector("#accountName").addEventListener("input", (event) => {
   renderCanvas()
 })
 document.querySelector("#teamEditors").addEventListener("input", (event) => {
+  if (event.target.classList.contains("asset-search")) {
+    const picker = event.target.closest(".asset-picker")
+    const query = event.target.value.toLowerCase().trim()
+    const options = picker.querySelectorAll(".asset-option")
+    const noResult = picker.querySelector(".asset-no-result")
+    let matchCount = 0
+
+    options.forEach((opt) => {
+      const label = (opt.dataset.label || "").toLowerCase()
+      const val = (opt.dataset.value || "").toLowerCase()
+      const valClean = val.replace(/-/g, " ")
+      const matches =
+        !query ||
+        label.includes(query) ||
+        val.includes(query) ||
+        valClean.includes(query)
+
+      if (matches) {
+        opt.style.display = ""
+        matchCount++
+      } else {
+        opt.style.display = "none"
+      }
+    })
+
+    if (noResult) {
+      noResult.style.display = matchCount === 0 ? "block" : "none"
+    }
+    return
+  }
+
   const form = event.target.closest(".team-form")
   if (form) {
     syncTeam(form)
     renderCanvas()
+  }
+})
+document.querySelector("#teamEditors").addEventListener("keydown", (event) => {
+  if (
+    event.target.classList.contains("asset-search") &&
+    event.key === "Enter"
+  ) {
+    event.preventDefault()
+    const picker = event.target.closest(".asset-picker")
+    const visibleOption = [...picker.querySelectorAll(".asset-option")].find(
+      (opt) => opt.style.display !== "none",
+    )
+    if (visibleOption) {
+      const select = picker.querySelector("select")
+      select.value = visibleOption.dataset.value
+      picker.classList.remove("open")
+      select.dispatchEvent(new Event("change", { bubbles: true }))
+    }
   }
 })
 document.querySelector("#teamEditors").addEventListener("change", (event) => {
@@ -2577,13 +2823,29 @@ document.querySelector("#teamEditors").addEventListener("change", (event) => {
   const row = event.target.closest(".member-row")
   if (form && row) {
     syncTeam(form)
-    const assetType = event.target.classList.contains("character-select")
-      ? "characters"
-      : event.target.classList.contains("weapon-select")
-        ? "weapons"
-        : event.target.classList.contains("artifact-select")
-          ? "artifacts"
-          : null
+    if (event.target.classList.contains("character-select")) {
+      const charId = event.target.value
+      const charType = characterWeaponTypeMap[charId] || "sword"
+      const memberIndex = Number(row.dataset.member)
+      const teamIndex = Number(form.dataset.team)
+      const member = teams[teamIndex].members[memberIndex]
+      const currentWepType = weaponTypeMap[member[1]]
+
+      if (currentWepType !== charType) {
+        const matchingWeapons = weaponOptionsByType[charType] || weaponOptions
+        if (matchingWeapons.length > 0) {
+          member[1] = matchingWeapons[0][0]
+        }
+      }
+      refresh()
+      return
+    }
+
+    const assetType = event.target.classList.contains("weapon-select")
+      ? "weapons"
+      : event.target.classList.contains("artifact-select")
+        ? "artifacts"
+        : null
     if (assetType) {
       row
         .querySelectorAll(`img[data-asset-type="${assetType}"]`)
@@ -2604,14 +2866,36 @@ document.querySelector("#teamEditors").addEventListener("change", (event) => {
   }
 })
 document.querySelector("#teamEditors").addEventListener("click", (event) => {
+  if (event.target.closest(".asset-search-wrapper")) {
+    return
+  }
   const pickerToggle = event.target.closest(".asset-picker-toggle")
   const assetOption = event.target.closest(".asset-option")
   if (pickerToggle) {
     const picker = pickerToggle.closest(".asset-picker")
+    const isAlreadyOpen = picker.classList.contains("open")
     document.querySelectorAll(".asset-picker.open").forEach((item) => {
       if (item !== picker) item.classList.remove("open")
     })
-    picker.classList.toggle("open")
+    if (!isAlreadyOpen) {
+      picker.classList.add("open")
+      const searchInput = picker.querySelector(".asset-search")
+      if (searchInput) {
+        searchInput.value = ""
+        picker.querySelectorAll(".asset-option").forEach((opt) => {
+          opt.style.display = ""
+        })
+        const noResult = picker.querySelector(".asset-no-result")
+        if (noResult) noResult.style.display = "none"
+        setTimeout(() => searchInput.focus(), 40)
+      }
+      const selected = picker.querySelector(".asset-option.selected")
+      if (selected) {
+        selected.scrollIntoView({ block: "nearest" })
+      }
+    } else {
+      picker.classList.remove("open")
+    }
     return
   }
   if (assetOption) {
@@ -2625,18 +2909,42 @@ document.querySelector("#teamEditors").addEventListener("click", (event) => {
   const form = event.target.closest(".team-form")
   if (!form) return
   const teamIndex = Number(form.dataset.team)
+
+  const removeBtn = event.target.closest(".remove-team")
+  if (removeBtn) {
+    teams.splice(teamIndex, 1)
+    const newCollapsed = new Set()
+    collapsedTeams.forEach((i) => {
+      if (i < teamIndex) newCollapsed.add(i)
+      else if (i > teamIndex) newCollapsed.add(i - 1)
+    })
+    collapsedTeams = newCollapsed
+    refresh()
+    return
+  }
+
+  const toggleHead = event.target.closest(".team-toggle-head")
+  if (toggleHead) {
+    syncTeam(form)
+    if (collapsedTeams.has(teamIndex)) {
+      collapsedTeams.delete(teamIndex)
+    } else {
+      collapsedTeams.add(teamIndex)
+    }
+    renderEditors()
+    return
+  }
+
   if (event.target.classList.contains("add-member")) {
     syncTeam(form)
     if (teams[teamIndex].members.length < 4)
       teams[teamIndex].members.push([
         "skirk",
-        "aqua-simulacra",
+        "mistsplitter-reforged",
         "gladiators-finale",
         0,
+        1,
       ])
-    refresh()
-  } else if (event.target.classList.contains("remove-team")) {
-    teams.splice(teamIndex, 1)
     refresh()
   } else if (event.target.classList.contains("remove-member")) {
     syncTeam(form)
@@ -2649,21 +2957,32 @@ document.querySelector("#teamEditors").addEventListener("click", (event) => {
 })
 document.querySelector("#addTeamBtn").addEventListener("click", () => {
   if (teams.length >= maxTeams) return
+  const newIndex = teams.length
   teams.push({
     dps: 0,
     cost: 0,
-    members: [["skirk", "aqua-simulacra", "gladiators-finale", 0]],
+    members: [["skirk", "mistsplitter-reforged", "gladiators-finale", 0, 1]],
   })
+  collapsedTeams.add(newIndex)
   refresh()
+  setTimeout(() => {
+    const target = document.querySelector(
+      `.team-form[data-team="${newIndex}"]`,
+    )
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth", block: "nearest" })
+    }
+  }, 40)
 })
 document.querySelector("#resetBtn").addEventListener("click", () => {
   teams = [
     {
       dps: 0,
       cost: 0,
-      members: [["skirk", "aqua-simulacra", "gladiators-finale", 0]],
+      members: [["skirk", "mistsplitter-reforged", "gladiators-finale", 0, 1]],
     },
   ]
+  collapsedTeams = new Set(teams.map((_, i) => i))
   refresh()
 })
 document.querySelector("#saveJsonBtn").addEventListener("click", saveJson)
@@ -2676,6 +2995,27 @@ document.querySelector("#jsonFileInput").addEventListener("change", importJson)
 document
   .querySelector("#downloadBtn")
   .addEventListener("click", downloadPreview)
+document.addEventListener("click", (event) => {
+  if (!event.target.closest(".asset-picker")) {
+    document.querySelectorAll(".asset-picker.open").forEach((picker) => {
+      picker.classList.remove("open")
+    })
+  }
+})
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    document.querySelectorAll(".asset-picker.open").forEach((picker) => {
+      picker.classList.remove("open")
+    })
+  }
+})
+document.querySelector("#mobileTabs")?.addEventListener("click", (event) => {
+  const btn = event.target.closest(".mobile-tab-btn")
+  if (btn && btn.dataset.tab) {
+    setMobileTab(btn.dataset.tab)
+  }
+})
 loadLocalData()
 document.querySelector("#accountName").value = accountName
+collapsedTeams = new Set(teams.map((_, i) => i))
 refresh()

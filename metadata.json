@@ -1,0 +1,8 @@
+{
+  "name": "DPS Rank Studio",
+  "description": "Genshin Impact team DPS rank builder and studio for creating, managing, and exporting custom team rankings.",
+  "requestFramePermissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
