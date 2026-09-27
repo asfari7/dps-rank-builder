@@ -2540,24 +2540,77 @@ function normalizeImportedData(data) {
   }
 }
 const localDataKey = "dps-rank-studio-data"
+const localBackupKey = "dps-rank-studio-backup"
+let isViewingShared = false
+let myPersonalData = null
+
 function saveLocalData() {
+  if (isViewingShared) return
   try {
-    localStorage.setItem(
-      localDataKey,
-      JSON.stringify({ version: 1, accountName, teams }),
-    )
+    const payload = JSON.stringify({ version: 1, accountName, teams })
+    localStorage.setItem(localDataKey, payload)
+    localStorage.setItem(localBackupKey, payload)
   } catch (error) {}
 }
+
 function loadLocalData() {
   try {
-    const saved = localStorage.getItem(localDataKey)
-    if (!saved) return
+    const saved = localStorage.getItem(localDataKey) || localStorage.getItem(localBackupKey)
+    if (!saved) return false
     const data = normalizeImportedData(JSON.parse(saved))
     accountName = data.accountName
     teams = data.teams.slice(0, maxTeams)
+    return true
   } catch (error) {
-    localStorage.removeItem(localDataKey)
+    return false
   }
+}
+
+function showSharedBanner(name, count) {
+  const banner = document.querySelector("#sharedNoticeBanner")
+  const nameEl = document.querySelector("#sharedOwnerName")
+  const countEl = document.querySelector("#sharedTeamCount")
+  if (!banner) return
+  if (nameEl) nameEl.textContent = name || "Akunku"
+  if (countEl) countEl.textContent = count || 1
+  banner.style.display = "flex"
+}
+
+function hideSharedBanner() {
+  const banner = document.querySelector("#sharedNoticeBanner")
+  if (banner) banner.style.display = "none"
+}
+
+function returnToMyData() {
+  isViewingShared = false
+  if (window.location.hash.includes("share=") || window.location.hash.includes("data=")) {
+    history.replaceState(null, "", window.location.pathname + window.location.search.replace(/[?&]share=[^&]*/, "").replace(/^&/, "?"))
+  }
+  hideSharedBanner()
+  if (myPersonalData && myPersonalData.teams && myPersonalData.teams.length > 0) {
+    accountName = myPersonalData.accountName
+    teams = JSON.parse(JSON.stringify(myPersonalData.teams))
+  } else {
+    loadLocalData()
+  }
+  document.querySelector("#accountName").value = accountName
+  collapsedTeams = new Set(teams.map((_, i) => i))
+  refresh()
+  showToast("✓ Kembali ke susunan tim Anda!")
+}
+
+function adoptSharedData() {
+  isViewingShared = false
+  if (window.location.hash.includes("share=") || window.location.hash.includes("data=")) {
+    history.replaceState(null, "", window.location.pathname + window.location.search.replace(/[?&]share=[^&]*/, "").replace(/^&/, "?"))
+  }
+  hideSharedBanner()
+  saveLocalData()
+  myPersonalData = {
+    accountName,
+    teams: JSON.parse(JSON.stringify(teams)),
+  }
+  showToast("✓ Tim berhasil disimpan sebagai data utama Anda!")
 }
 
 let toastTimer = null
@@ -2725,14 +2778,15 @@ function checkShareUrl() {
       payload = payload.split("&")[0]
       const data = decodeSharePayload(payload)
       if (data && data.teams && data.teams.length > 0) {
+        isViewingShared = true
         accountName = data.accountName
         teams = data.teams
         document.querySelector("#accountName").value = accountName
         collapsedTeams = new Set(teams.map((_, i) => i))
         refresh()
-        saveLocalData()
+        showSharedBanner(data.accountName, data.teams.length)
         setTimeout(() => {
-          showToast(`🎉 Data tim "${accountName}" berhasil dimuat!`, 4500)
+          showToast(`👀 Menampilkan tim dari link "${accountName}". Data pribadi Anda aman tersimpan!`, 4500)
         }, 300)
         return true
       }
@@ -2749,11 +2803,24 @@ function importJson(event) {
   reader.onload = () => {
     try {
       const imported = normalizeImportedData(JSON.parse(reader.result))
+      if (isViewingShared) {
+        isViewingShared = false
+        hideSharedBanner()
+        if (window.location.hash.includes("share=") || window.location.hash.includes("data=")) {
+          history.replaceState(null, "", window.location.pathname + window.location.search.replace(/[?&]share=[^&]*/, "").replace(/^&/, "?"))
+        }
+      }
       accountName = imported.accountName
       teams = imported.teams
       document.querySelector("#accountName").value = accountName
       collapsedTeams = new Set(teams.map((_, i) => i))
+      myPersonalData = {
+        accountName,
+        teams: JSON.parse(JSON.stringify(teams)),
+      }
       refresh()
+      saveLocalData()
+      showToast("✓ Data JSON berhasil diimpor!")
     } catch (error) {
       window.alert(
         "JSON tidak bisa diimport. Pastikan file berasal dari DPS Rank Studio.",
@@ -3356,6 +3423,8 @@ document.querySelector("#addTeamBtn").addEventListener("click", () => {
   }, 40)
 })
 document.querySelector("#resetBtn").addEventListener("click", () => {
+  accountName = "Akunku"
+  document.querySelector("#accountName").value = accountName
   teams = [
     {
       dps: 0,
@@ -3364,8 +3433,22 @@ document.querySelector("#resetBtn").addEventListener("click", () => {
     },
   ]
   collapsedTeams = new Set(teams.map((_, i) => i))
+  if (isViewingShared) {
+    isViewingShared = false
+    hideSharedBanner()
+    if (window.location.hash.includes("share=") || window.location.hash.includes("data=")) {
+      history.replaceState(null, "", window.location.pathname + window.location.search.replace(/[?&]share=[^&]*/, "").replace(/^&/, "?"))
+    }
+  }
+  myPersonalData = {
+    accountName,
+    teams: JSON.parse(JSON.stringify(teams)),
+  }
   refresh()
+  saveLocalData()
 })
+document.querySelector("#returnMyDataBtn")?.addEventListener("click", returnToMyData)
+document.querySelector("#adoptSharedBtn")?.addEventListener("click", adoptSharedData)
 document.querySelector("#shareBtn")?.addEventListener("click", openShareModal)
 document.querySelector("#closeShareModal")?.addEventListener("click", closeShareModal)
 document.querySelector("#copyShareUrlBtn")?.addEventListener("click", copyShareUrl)
@@ -3406,12 +3489,33 @@ document.querySelector("#mobileTabs")?.addEventListener("click", (event) => {
   }
 })
 window.addEventListener("hashchange", () => {
-  checkShareUrl()
+  const hash = window.location.hash || ""
+  if (!hash.includes("share=") && !hash.includes("data=")) {
+    if (isViewingShared) {
+      returnToMyData()
+    }
+  } else {
+    checkShareUrl()
+  }
 })
+window.addEventListener("popstate", () => {
+  const hash = window.location.hash || ""
+  if (!hash.includes("share=") && !hash.includes("data=")) {
+    if (isViewingShared) {
+      returnToMyData()
+    }
+  }
+})
+
+// Always load user's personal data from storage first
+loadLocalData()
+myPersonalData = {
+  accountName,
+  teams: JSON.parse(JSON.stringify(teams)),
+}
 
 const loadedFromUrl = checkShareUrl()
 if (!loadedFromUrl) {
-  loadLocalData()
   document.querySelector("#accountName").value = accountName
   collapsedTeams = new Set(teams.map((_, i) => i))
   refresh()

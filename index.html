@@ -1123,13 +1123,128 @@
         gap: 8px;
         animation: rise 0.25s both;
       }
+      .shared-notice-banner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 13px 18px;
+        background: linear-gradient(90deg, #f0f9ff, #f8fafc);
+        border: 1.5px solid #7dd3fc;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+        animation: rise 0.25s both;
+      }
+      .shared-notice-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+      }
+      .shared-notice-pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 10px;
+        background: #e0f2fe;
+        border: 1px solid #38bdf8;
+        border-radius: 6px;
+        color: #0369a1;
+        font: 800 11px "Space Grotesk", sans-serif;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+      .shared-notice-info {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+      }
+      .shared-notice-title {
+        color: #0f172a;
+        font-size: 13.5px;
+        font-weight: 700;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .shared-notice-title strong {
+        color: #0284c7;
+      }
+      .shared-notice-sub {
+        color: #1e293b;
+        font-size: 12.5px;
+        font-weight: 500;
+        line-height: 1.4;
+      }
+      .shared-notice-sub .highlight-text {
+        color: #0369a1;
+        font-weight: 700;
+      }
+      .shared-notice-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+      }
+      .btn-sm {
+        padding: 7px 12px;
+        font-size: 12px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+      }
+      .btn-return {
+        background: #0f172a;
+        border: 1px solid #0f172a;
+        color: #ffffff;
+        font-weight: 700;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.15);
+      }
+      .btn-return:hover {
+        background: #1e293b;
+        border-color: #1e293b;
+        color: #ffffff;
+      }
+      .btn-adopt {
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        color: #1e293b;
+        font-weight: 600;
+      }
+      .btn-adopt:hover {
+        background: #f1f5f9;
+        border-color: #94a3b8;
+        color: #0f172a;
+      }
+      @media (max-width: 768px) {
+        .shared-notice-banner {
+          flex-direction: column;
+          align-items: stretch;
+          padding: 12px 14px;
+          gap: 12px;
+        }
+        .shared-notice-actions {
+          width: 100%;
+          justify-content: flex-end;
+        }
+        .shared-notice-actions .btn {
+          flex: 1;
+          justify-content: center;
+        }
+      }
       @media print {
         body {
           background: #fff;
         }
         .builder,
         .topbar .actions,
-        .preview-toolbar {
+        .preview-toolbar,
+        .shared-notice-banner {
           display: none;
         }
         .app {
@@ -1172,6 +1287,30 @@
           </button>
         </div>
       </header>
+
+      <!-- Shared Notice Banner -->
+      <aside class="shared-notice-banner" id="sharedNoticeBanner" style="display: none;">
+        <div class="shared-notice-left">
+          <span class="shared-notice-pill">Mode Tinjauan Link</span>
+          <div class="shared-notice-info">
+            <span class="shared-notice-title">
+              Menampilkan tim: <strong id="sharedOwnerName">Akunku</strong> (<span id="sharedTeamCount">1</span> Tim)
+            </span>
+            <span class="shared-notice-sub">Data tim pribadi Anda tetap aman tersimpan. Klik <span class="highlight-text">"Kembali ke Tim Saya"</span> untuk kembali.</span>
+          </div>
+        </div>
+        <div class="shared-notice-actions">
+          <button class="btn btn-sm btn-return" id="returnMyDataBtn" type="button">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            <span>Kembali ke Tim Saya</span>
+          </button>
+          <button class="btn btn-sm btn-adopt" id="adoptSharedBtn" type="button">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+            <span>Simpan ke Tim Saya</span>
+          </button>
+        </div>
+      </aside>
+
       <div class="mobile-tabs" id="mobileTabs">
         <button type="button" class="mobile-tab-btn active" data-tab="builder">
           ✏️ Edit Team (<span id="mobileTeamCount">1</span>)
