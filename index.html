@@ -606,6 +606,7 @@
         padding: 16px 20px;
         color: #fff;
         border-bottom: 1px solid #22262b;
+        min-width: 900px;
       }
       .preview-toolbar strong {
         font:
@@ -628,6 +629,7 @@
       }
       .rank-canvas {
         width: 900px;
+        min-width: 900px;
         min-height: 650px;
         padding: 40px 48px;
         background: linear-gradient(145deg, #101214, #090a0b);
@@ -873,49 +875,122 @@
           flex: 0 0 auto;
           white-space: nowrap;
         }
-        .rank-canvas {
-          min-height: 540px;
-          padding: 28px 14px;
-          overflow-x: auto;
-        }
-        .rank-head,
-        .rank-row {
-          min-width: 575px;
-          grid-template-columns: 32px 370px 54px 100px;
-          gap: 10px;
-        }
-        .character-card {
-          width: 68px;
-          height: 105px;
-        }
-        .character-card .character {
-          width: 57px;
-          height: 57px;
-        }
-        .character-card .weapon,
-        .character-card .artifact {
-          top: 62px;
-          width: 29px;
-          height: 29px;
-        }
-        .character-card .weapon {
-          right: 3px;
-        }
-        .character-card .artifact {
-          left: 3px;
-        }
-        .constellation {
-          top: 3px;
-          right: 4px;
-          font-size: 9px;
-        }
-        .cost,
-        .dps {
-          font-size: 20px;
-        }
-        .canvas-footer {
-          min-width: 575px;
-        }
+      }
+      /* Consistent export styles (guarantees desktop layout on all devices) */
+      body.is-exporting *,
+      .is-exporting * {
+        animation: none !important;
+        transition: none !important;
+      }
+      body.is-exporting .rank-canvas,
+      .rank-canvas.is-exporting {
+        width: 900px !important;
+        min-width: 900px !important;
+        max-width: 900px !important;
+        min-height: 650px !important;
+        padding: 40px 48px !important;
+        overflow: visible !important;
+        box-sizing: border-box !important;
+      }
+      body.is-exporting .canvas-title,
+      .rank-canvas.is-exporting .canvas-title {
+        margin: 0 0 48px !important;
+        font: 700 32px "Space Grotesk", sans-serif !important;
+        letter-spacing: -0.05em !important;
+      }
+      body.is-exporting .rank-head,
+      body.is-exporting .rank-row,
+      .rank-canvas.is-exporting .rank-head,
+      .rank-canvas.is-exporting .rank-row {
+        min-width: 0 !important;
+        grid-template-columns: 48px 370px 90px 150px !important;
+        gap: 12px !important;
+      }
+      body.is-exporting .rank-head,
+      .rank-canvas.is-exporting .rank-head {
+        padding: 0 0 13px !important;
+        font-size: 10px !important;
+      }
+      body.is-exporting .rank-row,
+      .rank-canvas.is-exporting .rank-row {
+        min-height: 148px !important;
+        padding: 16px 0 !important;
+      }
+      body.is-exporting .rank-number,
+      .rank-canvas.is-exporting .rank-number {
+        font: 700 28px "Space Grotesk", sans-serif !important;
+        top: -12px !important;
+      }
+      body.is-exporting .team-icons,
+      .rank-canvas.is-exporting .team-icons {
+        display: flex !important;
+        gap: 10px !important;
+        align-items: center !important;
+      }
+      body.is-exporting .character-card,
+      .rank-canvas.is-exporting .character-card {
+        width: 82px !important;
+        height: 124px !important;
+      }
+      body.is-exporting .character-card .character,
+      .rank-canvas.is-exporting .character-card .character {
+        width: 72px !important;
+        height: 72px !important;
+        border-radius: 12px !important;
+        margin: 0 auto !important;
+        display: block !important;
+      }
+      body.is-exporting .character-card .weapon,
+      body.is-exporting .character-card .artifact,
+      .rank-canvas.is-exporting .character-card .weapon,
+      .rank-canvas.is-exporting .character-card .artifact {
+        top: 78px !important;
+        width: 34px !important;
+        height: 34px !important;
+        padding: 4px !important;
+      }
+      body.is-exporting .character-card .weapon,
+      .rank-canvas.is-exporting .character-card .weapon {
+        right: 4px !important;
+        left: auto !important;
+      }
+      body.is-exporting .character-card .artifact,
+      .rank-canvas.is-exporting .character-card .artifact {
+        left: 4px !important;
+        right: auto !important;
+      }
+      body.is-exporting .constellation,
+      .rank-canvas.is-exporting .constellation {
+        top: 4px !important;
+        right: 5px !important;
+        left: auto !important;
+        font-size: 11px !important;
+        padding: 3px 5px !important;
+      }
+      body.is-exporting .refinement,
+      .rank-canvas.is-exporting .refinement {
+        top: 99px !important;
+        right: 2px !important;
+        left: auto !important;
+        font-size: 10px !important;
+      }
+      body.is-exporting .cost,
+      body.is-exporting .dps,
+      .rank-canvas.is-exporting .cost,
+      .rank-canvas.is-exporting .dps {
+        font: 700 26px "Space Grotesk", sans-serif !important;
+        letter-spacing: -0.04em !important;
+      }
+      body.is-exporting .rank-head span:nth-child(3),
+      body.is-exporting .cost,
+      .rank-canvas.is-exporting .rank-head span:nth-child(3),
+      .rank-canvas.is-exporting .cost {
+        padding-left: 24px !important;
+      }
+      body.is-exporting .canvas-footer,
+      .rank-canvas.is-exporting .canvas-footer {
+        min-width: 0 !important;
+        padding-top: 20px !important;
       }
       @media print {
         body {
@@ -1008,7 +1083,7 @@
         </section>
       </section>
     </main>
+    <script src="html2canvas.min.js" onerror="this.onerror=null;this.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'"></script>
     <script src="assets.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   </body>
 </html>
