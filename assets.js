@@ -2559,6 +2559,189 @@ function loadLocalData() {
     localStorage.removeItem(localDataKey)
   }
 }
+
+let toastTimer = null
+function showToast(message, duration = 3500) {
+  const toast = document.querySelector("#toastNotification")
+  if (!toast) return
+  toast.textContent = message
+  toast.style.display = "flex"
+  clearTimeout(toastTimer)
+  toastTimer = setTimeout(() => {
+    toast.style.display = "none"
+  }, duration)
+}
+
+function encodeSharePayload(data) {
+  const compact = {
+    a: (data.accountName || "Akunku").trim(),
+    t: data.teams.map((team) => ({
+      d: Number(team.dps) || 0,
+      c: Number(team.cost) || 0,
+      m: team.members.map((m) => [
+        m[0],
+        m[1],
+        m[2],
+        Number(m[3]) || 0,
+        Number(m[4]) || 1,
+      ]),
+    })),
+  }
+  const jsonStr = JSON.stringify(compact)
+  const bytes = new TextEncoder().encode(jsonStr)
+  let binary = ""
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i])
+  }
+  return btoa(binary)
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "")
+}
+
+function decodeSharePayload(str) {
+  try {
+    if (!str) return null
+    let base64 = str.replace(/-/g, "+").replace(/_/g, "/")
+    while (base64.length % 4) {
+      base64 += "="
+    }
+    const binary = atob(base64)
+    const bytes = new Uint8Array(binary.length)
+    for (let i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i)
+    }
+    const jsonStr = new TextDecoder().decode(bytes)
+    const parsed = JSON.parse(jsonStr)
+
+    if (parsed.t && Array.isArray(parsed.t)) {
+      return normalizeImportedData({
+        accountName: parsed.a || "Akunku",
+        teams: parsed.t.map((t) => ({
+          dps: t.d,
+          cost: t.c,
+          members: t.m,
+        })),
+      })
+    }
+    if (parsed.teams && Array.isArray(parsed.teams)) {
+      return normalizeImportedData(parsed)
+    }
+    return null
+  } catch (err) {
+    console.error("Gagal membaca data share:", err)
+    return null
+  }
+}
+
+function generateShareUrl() {
+  const payload = encodeSharePayload({ accountName, teams })
+  const url = new URL(window.location.href)
+  url.search = ""
+  url.hash = `share=${payload}`
+  return url.toString()
+}
+
+function openShareModal() {
+  const shareUrl = generateShareUrl()
+  const modal = document.querySelector("#shareModal")
+  const input = document.querySelector("#shareUrlInput")
+  const copyBtn = document.querySelector("#copyShareUrlBtn")
+
+  if (input) {
+    input.value = shareUrl
+  }
+
+  if (copyBtn) {
+    copyBtn.textContent = "Salin Link"
+  }
+
+  // Auto-copy ke clipboard saat tombol bagikan ditekan
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      showToast("📋 Link tim berhasil disalin ke clipboard!")
+      if (copyBtn) copyBtn.textContent = "✓ Tersalin!"
+    }).catch(() => {})
+  }
+
+  if (modal) {
+    modal.style.display = "flex"
+    if (input) {
+      setTimeout(() => {
+        input.focus()
+        input.select()
+      }, 50)
+    }
+  }
+}
+
+function closeShareModal() {
+  const modal = document.querySelector("#shareModal")
+  if (modal) modal.style.display = "none"
+}
+
+async function copyShareUrl() {
+  const input = document.querySelector("#shareUrlInput")
+  const copyBtn = document.querySelector("#copyShareUrlBtn")
+  if (!input) return
+  const text = input.value
+
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(text)
+    } else {
+      input.select()
+      document.execCommand("copy")
+    }
+    if (copyBtn) {
+      copyBtn.textContent = "✓ Berhasil Disalin!"
+      setTimeout(() => {
+        if (copyBtn) copyBtn.textContent = "Salin Link"
+      }, 2500)
+    }
+    showToast("📋 Link berhasil disalin!")
+  } catch (err) {
+    input.select()
+    showToast("Silakan tekan Ctrl+C untuk menyalin link.")
+  }
+}
+
+function checkShareUrl() {
+  try {
+    let payload = null
+    const hash = window.location.hash || ""
+    const search = window.location.search || ""
+
+    if (hash.includes("share=")) {
+      payload = hash.split("share=")[1]
+    } else if (hash.includes("data=")) {
+      payload = hash.split("data=")[1]
+    } else if (search.includes("share=")) {
+      const params = new URLSearchParams(search)
+      payload = params.get("share")
+    }
+
+    if (payload) {
+      payload = payload.split("&")[0]
+      const data = decodeSharePayload(payload)
+      if (data && data.teams && data.teams.length > 0) {
+        accountName = data.accountName
+        teams = data.teams
+        document.querySelector("#accountName").value = accountName
+        collapsedTeams = new Set(teams.map((_, i) => i))
+        refresh()
+        saveLocalData()
+        setTimeout(() => {
+          showToast(`🎉 Data tim "${accountName}" berhasil dimuat!`, 4500)
+        }, 300)
+        return true
+      }
+    }
+  } catch (e) {
+    console.error("Error reading shared URL:", e)
+  }
+  return false
+}
 function importJson(event) {
   const file = event.target.files[0]
   if (!file) return
@@ -3183,6 +3366,14 @@ document.querySelector("#resetBtn").addEventListener("click", () => {
   collapsedTeams = new Set(teams.map((_, i) => i))
   refresh()
 })
+document.querySelector("#shareBtn")?.addEventListener("click", openShareModal)
+document.querySelector("#closeShareModal")?.addEventListener("click", closeShareModal)
+document.querySelector("#copyShareUrlBtn")?.addEventListener("click", copyShareUrl)
+document.querySelector("#shareModal")?.addEventListener("click", (event) => {
+  if (event.target.id === "shareModal") {
+    closeShareModal()
+  }
+})
 document.querySelector("#saveJsonBtn").addEventListener("click", saveJson)
 document
   .querySelector("#importJsonBtn")
@@ -3202,6 +3393,7 @@ document.addEventListener("click", (event) => {
 })
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
+    closeShareModal()
     document.querySelectorAll(".asset-picker.open").forEach((picker) => {
       picker.classList.remove("open")
     })
@@ -3213,7 +3405,14 @@ document.querySelector("#mobileTabs")?.addEventListener("click", (event) => {
     setMobileTab(btn.dataset.tab)
   }
 })
-loadLocalData()
-document.querySelector("#accountName").value = accountName
-collapsedTeams = new Set(teams.map((_, i) => i))
-refresh()
+window.addEventListener("hashchange", () => {
+  checkShareUrl()
+})
+
+const loadedFromUrl = checkShareUrl()
+if (!loadedFromUrl) {
+  loadLocalData()
+  document.querySelector("#accountName").value = accountName
+  collapsedTeams = new Set(teams.map((_, i) => i))
+  refresh()
+}
