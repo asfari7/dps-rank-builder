@@ -3,7 +3,7 @@ window.assetCatalog = {
     {
       id: "navia",
       label: "Navia",
-      file: "asset/character-icons/navia-claymore.png",
+      file: "asset/character-icons/navia-claymore.webp",
     },
     {
       id: "arlecchino",
@@ -2449,16 +2449,18 @@ function renderEditors() {
     toolbar.innerHTML = `<span class="count">${teams.length} / ${maxTeams} Team</span>`
   }
   document.querySelector("#teamEditors").innerHTML = teams
-    .map(
-      (team, teamIndex) => {
-        const isCollapsed = collapsedTeams.has(teamIndex)
-        return `<div class="team-form ${isCollapsed ? "collapsed" : ""}" data-team="${teamIndex}"><div class="editor-head team-toggle-head"><div class="team-title-wrap"><strong>Team ${teamIndex + 1}</strong>${isCollapsed ? `<span class="team-badge-dps">${team.dps.toLocaleString("id-ID")} DPS</span><span class="team-badge-cost">Cost ${team.cost}</span>` : ""}</div><div class="team-head-right">${isCollapsed ? `<div class="mini-roster">${team.members.map((m) => `<img src="${characterFile(m[0])}" alt="" title="${m[0]}">`).join("")}</div>` : ""}<button type="button" class="team-toggle-btn ${isCollapsed ? "is-collapsed" : "is-open"}"><span class="btn-arrow">${isCollapsed ? "▼" : "▲"}</span><span>${isCollapsed ? "Buka" : "Tutup"}</span></button>${!isCollapsed && teams.length > 1 ? '<button class="remove-team" type="button" title="Hapus tim" aria-label="Hapus tim"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>' : ""}</div></div><div class="form-row"><label>DPS satu tim<input class="team-dps" type="number" min="0" step="100" value="${team.dps}"></label><label>Cost<input class="team-cost" type="number" min="0" step="1" value="${team.cost}"></label></div><div class="member-list">${team.members.map((member, memberIndex) => {
+    .map((team, teamIndex) => {
+      const isCollapsed = collapsedTeams.has(teamIndex)
+      return `<div class="team-form ${isCollapsed ? "collapsed" : ""}" data-team="${teamIndex}"><div class="editor-head team-toggle-head"><div class="team-title-wrap"><strong>Team ${teamIndex + 1}</strong>${isCollapsed ? `<span class="team-badge-dps">${team.dps.toLocaleString("id-ID")} DPS</span><span class="team-badge-cost">Cost ${team.cost}</span>` : ""}</div><div class="team-head-right">${isCollapsed ? `<div class="mini-roster">${team.members.map((m) => `<img src="${characterFile(m[0])}" alt="" title="${m[0]}">`).join("")}</div>` : ""}<button type="button" class="team-toggle-btn ${isCollapsed ? "is-collapsed" : "is-open"}"><span class="btn-arrow">${isCollapsed ? "▼" : "▲"}</span><span>${isCollapsed ? "Buka" : "Tutup"}</span></button>${!isCollapsed && teams.length > 1 ? '<button class="remove-team" type="button" title="Hapus tim" aria-label="Hapus tim"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>' : ""}</div></div><div class="form-row"><label>DPS satu tim<input class="team-dps" type="number" min="0" step="100" value="${team.dps}"></label><label>Cost<input class="team-cost" type="number" min="0" step="1" value="${team.cost}"></label></div><div class="member-list">${team.members
+        .map((member, memberIndex) => {
           const charType = characterWeaponTypeMap[member[0]] || "sword"
           const allowedWeapons = weaponOptionsByType[charType] || weaponOptions
           return `<div class="member-row" data-member="${memberIndex}"><span class="slot"><img data-asset-type="characters" src="${characterFile(member[0])}" alt=""></span><label>Karakter${editorAssetMarkup("characters", member[0], characterOptions)}</label><label>Senjata <span style="font-weight:400;opacity:0.7">(${charType})</span>${editorAssetMarkup("weapons", member[1], allowedWeapons, charType)}</label><label>Artefak${editorAssetMarkup("artifacts", member[2], artifactOptions)}</label><div class="member-levels"><label>KONSTELASI<select class="constellation-select">${constellationOptions.map((value) => `<option value="${value}" ${value === member[3] ? "selected" : ""}>C${value}</option>`).join("")}</select></label><label>REFINEMENT<select class="refinement-select">${refinementOptions.map((value) => `<option value="${value}" ${value === (member[4] ?? 1) ? "selected" : ""}>R${value}</option>`).join("")}</select></label></div><button class="remove-member" type="button" aria-label="Hapus anggota">&times;</button></div>`
-        }).join("")}</div>${team.members.length < 4 ? '<button class="add-member" type="button">+ Tambah anggota</button>' : '<div class="tip" style="margin-top:9px">Maksimal 4 karakter per tim.</div>'}</div>`
-      },
-    )
+        })
+        .join(
+          "",
+        )}</div>${team.members.length < 4 ? '<button class="add-member" type="button">+ Tambah anggota</button>' : '<div class="tip" style="margin-top:9px">Maksimal 4 karakter per tim.</div>'}</div>`
+    })
     .join("")
   const addTeamButton = document.querySelector("#addTeamBtn")
   addTeamButton.disabled = teams.length >= maxTeams
@@ -2518,24 +2520,22 @@ function normalizeImportedData(data) {
           )
         : 0,
     members: Array.isArray(team.members)
-      ? team.members
-          .slice(0, 4)
-          .map((member) => {
-            const charId = member[0] || "skirk"
-            const charType = characterWeaponTypeMap[charId] || "sword"
-            const validWeps = weaponOptionsByType[charType] || weaponOptions
-            let wepId = member[1] || validWeps[0][0]
-            if (weaponTypeMap[wepId] !== charType) {
-              wepId = validWeps[0][0]
-            }
-            return [
-              charId,
-              wepId,
-              member[2] || "gladiators-finale",
-              Number(member[3]) || 0,
-              Math.max(1, Math.min(5, Number(member[4]) || 1)),
-            ]
-          })
+      ? team.members.slice(0, 4).map((member) => {
+          const charId = member[0] || "skirk"
+          const charType = characterWeaponTypeMap[charId] || "sword"
+          const validWeps = weaponOptionsByType[charType] || weaponOptions
+          let wepId = member[1] || validWeps[0][0]
+          if (weaponTypeMap[wepId] !== charType) {
+            wepId = validWeps[0][0]
+          }
+          return [
+            charId,
+            wepId,
+            member[2] || "gladiators-finale",
+            Number(member[3]) || 0,
+            Math.max(1, Math.min(5, Number(member[4]) || 1)),
+          ]
+        })
       : [],
   }))
   return {
@@ -2560,7 +2560,8 @@ function saveLocalData() {
 
 function loadLocalData() {
   try {
-    const saved = localStorage.getItem(localDataKey) || localStorage.getItem(localBackupKey)
+    const saved =
+      localStorage.getItem(localDataKey) || localStorage.getItem(localBackupKey)
     if (!saved) return false
     const data = normalizeImportedData(JSON.parse(saved))
     accountName = data.accountName
@@ -2588,11 +2589,25 @@ function hideSharedBanner() {
 
 function returnToMyData() {
   isViewingShared = false
-  if (window.location.hash.includes("share=") || window.location.hash.includes("data=")) {
-    history.replaceState(null, "", window.location.pathname + window.location.search.replace(/[?&]share=[^&]*/, "").replace(/^&/, "?"))
+  if (
+    window.location.hash.includes("share=") ||
+    window.location.hash.includes("data=")
+  ) {
+    history.replaceState(
+      null,
+      "",
+      window.location.pathname +
+        window.location.search
+          .replace(/[?&]share=[^&]*/, "")
+          .replace(/^&/, "?"),
+    )
   }
   hideSharedBanner()
-  if (myPersonalData && myPersonalData.teams && myPersonalData.teams.length > 0) {
+  if (
+    myPersonalData &&
+    myPersonalData.teams &&
+    myPersonalData.teams.length > 0
+  ) {
     accountName = myPersonalData.accountName
     teams = JSON.parse(JSON.stringify(myPersonalData.teams))
   } else {
@@ -2606,8 +2621,18 @@ function returnToMyData() {
 
 function adoptSharedData() {
   isViewingShared = false
-  if (window.location.hash.includes("share=") || window.location.hash.includes("data=")) {
-    history.replaceState(null, "", window.location.pathname + window.location.search.replace(/[?&]share=[^&]*/, "").replace(/^&/, "?"))
+  if (
+    window.location.hash.includes("share=") ||
+    window.location.hash.includes("data=")
+  ) {
+    history.replaceState(
+      null,
+      "",
+      window.location.pathname +
+        window.location.search
+          .replace(/[?&]share=[^&]*/, "")
+          .replace(/^&/, "?"),
+    )
   }
   hideSharedBanner()
   saveLocalData()
@@ -2651,10 +2676,7 @@ function encodeSharePayload(data) {
   for (let i = 0; i < bytes.length; i++) {
     binary += String.fromCharCode(bytes[i])
   }
-  return btoa(binary)
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/, "")
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "")
 }
 
 function decodeSharePayload(str) {
@@ -2716,10 +2738,13 @@ function openShareModal() {
 
   // Auto-copy ke clipboard saat tombol bagikan ditekan
   if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(shareUrl).then(() => {
-      showToast("📋 Link tim berhasil disalin ke clipboard!")
-      if (copyBtn) copyBtn.textContent = "✓ Tersalin!"
-    }).catch(() => {})
+    navigator.clipboard
+      .writeText(shareUrl)
+      .then(() => {
+        showToast("📋 Link tim berhasil disalin ke clipboard!")
+        if (copyBtn) copyBtn.textContent = "✓ Tersalin!"
+      })
+      .catch(() => {})
   }
 
   if (modal) {
@@ -2791,7 +2816,10 @@ function checkShareUrl() {
         refresh()
         showSharedBanner(data.accountName, data.teams.length)
         setTimeout(() => {
-          showToast(`👀 Menampilkan tim dari link "${accountName}". Data pribadi Anda aman tersimpan!`, 4500)
+          showToast(
+            `👀 Menampilkan tim dari link "${accountName}". Data pribadi Anda aman tersimpan!`,
+            4500,
+          )
         }, 300)
         return true
       }
@@ -2811,8 +2839,18 @@ function importJson(event) {
       if (isViewingShared) {
         isViewingShared = false
         hideSharedBanner()
-        if (window.location.hash.includes("share=") || window.location.hash.includes("data=")) {
-          history.replaceState(null, "", window.location.pathname + window.location.search.replace(/[?&]share=[^&]*/, "").replace(/^&/, "?"))
+        if (
+          window.location.hash.includes("share=") ||
+          window.location.hash.includes("data=")
+        ) {
+          history.replaceState(
+            null,
+            "",
+            window.location.pathname +
+              window.location.search
+                .replace(/[?&]share=[^&]*/, "")
+                .replace(/^&/, "?"),
+          )
         }
       }
       accountName = imported.accountName
@@ -2857,7 +2895,11 @@ function setMobileTab(tab) {
     const isActive = btn.dataset.tab === tab
     btn.classList.toggle("active", isActive)
     if (isActive) {
-      btn.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" })
+      btn.scrollIntoView({
+        behavior: "smooth",
+        inline: "center",
+        block: "nearest",
+      })
     }
   })
   if (tab === "builder") {
@@ -2989,7 +3031,11 @@ async function downloadPreviewFallback() {
     const titleStyle = getComputedStyle(title)
     context.font = titleStyle.font || "700 32px 'Space Grotesk', sans-serif"
     context.fillStyle = "#f7f7f7"
-    context.fillText("DPS Rank ", titleBox.x, titleBox.y + titleBox.height * 0.78)
+    context.fillText(
+      "DPS Rank ",
+      titleBox.x,
+      titleBox.y + titleBox.height * 0.78,
+    )
     context.fillStyle = "#f5a623"
     context.fillText(
       accountName || "Akunku",
@@ -3016,7 +3062,6 @@ async function downloadPreviewFallback() {
     context.moveTo(rowBox.x, rowBox.y + rowBox.height)
     context.lineTo(rowBox.x + rowBox.width, rowBox.y + rowBox.height)
     context.stroke()
-
     ;[".rank-number", ".cost", ".dps"].forEach((selector) => {
       const item = row.querySelector(selector)
       if (!item) return
@@ -3040,45 +3085,47 @@ async function downloadPreviewFallback() {
   })
 
   // Badges (constellation & refinement)
-  ;[...preview.querySelectorAll(".constellation, .refinement")].forEach((badge) => {
-    const box = relative(badge)
-    const style = getComputedStyle(badge)
-    const isRefinement = badge.classList.contains("refinement")
-    if (!isRefinement) {
-      context.fillStyle = style.backgroundColor || "#2563eb"
-      context.beginPath()
-      const radius = parseFloat(style.borderRadius) || 4
-      if (context.roundRect) {
-        context.roundRect(box.x, box.y, box.width, box.height, radius)
-      } else {
-        context.rect(box.x, box.y, box.width, box.height)
+  ;[...preview.querySelectorAll(".constellation, .refinement")].forEach(
+    (badge) => {
+      const box = relative(badge)
+      const style = getComputedStyle(badge)
+      const isRefinement = badge.classList.contains("refinement")
+      if (!isRefinement) {
+        context.fillStyle = style.backgroundColor || "#2563eb"
+        context.beginPath()
+        const radius = parseFloat(style.borderRadius) || 4
+        if (context.roundRect) {
+          context.roundRect(box.x, box.y, box.width, box.height, radius)
+        } else {
+          context.rect(box.x, box.y, box.width, box.height)
+        }
+        context.fill()
       }
-      context.fill()
-    }
-    context.font = style.font
-    context.fillStyle = style.color || "#fff"
-    context.textAlign = "center"
-    context.textBaseline = "middle"
-    if (isRefinement) {
-      context.shadowColor = "rgba(0, 0, 0, 0.9)"
-      context.shadowBlur = 3
-      context.shadowOffsetX = 0
-      context.shadowOffsetY = 1
-    }
-    context.fillText(
-      badge.textContent.trim(),
-      box.x + box.width / 2,
-      box.y + box.height / 2 + 0.5,
-    )
-    if (isRefinement) {
-      context.shadowColor = "transparent"
-      context.shadowBlur = 0
-      context.shadowOffsetX = 0
-      context.shadowOffsetY = 0
-    }
-    context.textAlign = "left"
-    context.textBaseline = "alphabetic"
-  })
+      context.font = style.font
+      context.fillStyle = style.color || "#fff"
+      context.textAlign = "center"
+      context.textBaseline = "middle"
+      if (isRefinement) {
+        context.shadowColor = "rgba(0, 0, 0, 0.9)"
+        context.shadowBlur = 3
+        context.shadowOffsetX = 0
+        context.shadowOffsetY = 1
+      }
+      context.fillText(
+        badge.textContent.trim(),
+        box.x + box.width / 2,
+        box.y + box.height / 2 + 0.5,
+      )
+      if (isRefinement) {
+        context.shadowColor = "transparent"
+        context.shadowBlur = 0
+        context.shadowOffsetX = 0
+        context.shadowOffsetY = 0
+      }
+      context.textAlign = "left"
+      context.textBaseline = "alphabetic"
+    },
+  )
 
   // Footer
   const footer = preview.querySelector(".canvas-footer")
@@ -3182,7 +3229,10 @@ async function downloadPreview() {
         await triggerCanvasDownload(canvas, filename)
         success = true
       } catch (err) {
-        console.warn("html2canvas capture error, falling back to direct canvas renderer:", err)
+        console.warn(
+          "html2canvas capture error, falling back to direct canvas renderer:",
+          err,
+        )
       }
     }
 
@@ -3419,9 +3469,7 @@ document.querySelector("#addTeamBtn").addEventListener("click", () => {
   collapsedTeams.add(newIndex)
   refresh()
   setTimeout(() => {
-    const target = document.querySelector(
-      `.team-form[data-team="${newIndex}"]`,
-    )
+    const target = document.querySelector(`.team-form[data-team="${newIndex}"]`)
     if (target) {
       target.scrollIntoView({ behavior: "smooth", block: "nearest" })
     }
@@ -3441,8 +3489,18 @@ document.querySelector("#resetBtn").addEventListener("click", () => {
   if (isViewingShared) {
     isViewingShared = false
     hideSharedBanner()
-    if (window.location.hash.includes("share=") || window.location.hash.includes("data=")) {
-      history.replaceState(null, "", window.location.pathname + window.location.search.replace(/[?&]share=[^&]*/, "").replace(/^&/, "?"))
+    if (
+      window.location.hash.includes("share=") ||
+      window.location.hash.includes("data=")
+    ) {
+      history.replaceState(
+        null,
+        "",
+        window.location.pathname +
+          window.location.search
+            .replace(/[?&]share=[^&]*/, "")
+            .replace(/^&/, "?"),
+      )
     }
   }
   myPersonalData = {
@@ -3452,11 +3510,19 @@ document.querySelector("#resetBtn").addEventListener("click", () => {
   refresh()
   saveLocalData()
 })
-document.querySelector("#returnMyDataBtn")?.addEventListener("click", returnToMyData)
-document.querySelector("#adoptSharedBtn")?.addEventListener("click", adoptSharedData)
+document
+  .querySelector("#returnMyDataBtn")
+  ?.addEventListener("click", returnToMyData)
+document
+  .querySelector("#adoptSharedBtn")
+  ?.addEventListener("click", adoptSharedData)
 document.querySelector("#shareBtn")?.addEventListener("click", openShareModal)
-document.querySelector("#closeShareModal")?.addEventListener("click", closeShareModal)
-document.querySelector("#copyShareUrlBtn")?.addEventListener("click", copyShareUrl)
+document
+  .querySelector("#closeShareModal")
+  ?.addEventListener("click", closeShareModal)
+document
+  .querySelector("#copyShareUrlBtn")
+  ?.addEventListener("click", copyShareUrl)
 document.querySelector("#shareModal")?.addEventListener("click", (event) => {
   if (event.target.id === "shareModal") {
     closeShareModal()
