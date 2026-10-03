@@ -1,6 +1,11 @@
 window.assetCatalog = {
   characters: [
     {
+      id: "navia",
+      label: "Navia",
+      file: "asset/character-icons/navia-claymore.png",
+    },
+    {
       id: "arlecchino",
       label: "Arlecchino",
       file: "asset/character-icons/arlecchino-polearm.png",
