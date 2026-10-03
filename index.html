@@ -606,6 +606,7 @@
         padding: 16px 20px;
         color: #fff;
         border-bottom: 1px solid #22262b;
+        min-width: 900px;
       }
       .preview-toolbar strong {
         font:
@@ -628,6 +629,7 @@
       }
       .rank-canvas {
         width: 900px;
+        min-width: 900px;
         min-height: 650px;
         padding: 40px 48px;
         background: linear-gradient(145deg, #101214, #090a0b);
@@ -873,48 +875,366 @@
           flex: 0 0 auto;
           white-space: nowrap;
         }
-        .rank-canvas {
-          min-height: 540px;
-          padding: 28px 14px;
-          overflow-x: auto;
+      }
+      /* Consistent export styles (guarantees desktop layout on all devices) */
+      body.is-exporting *,
+      .is-exporting * {
+        animation: none !important;
+        transition: none !important;
+      }
+      body.is-exporting .rank-canvas,
+      .rank-canvas.is-exporting {
+        width: 900px !important;
+        min-width: 900px !important;
+        max-width: 900px !important;
+        min-height: 650px !important;
+        padding: 40px 48px !important;
+        overflow: visible !important;
+        box-sizing: border-box !important;
+      }
+      body.is-exporting .canvas-title,
+      .rank-canvas.is-exporting .canvas-title {
+        margin: 0 0 48px !important;
+        font: 700 32px "Space Grotesk", sans-serif !important;
+        letter-spacing: -0.05em !important;
+      }
+      body.is-exporting .rank-head,
+      body.is-exporting .rank-row,
+      .rank-canvas.is-exporting .rank-head,
+      .rank-canvas.is-exporting .rank-row {
+        min-width: 0 !important;
+        grid-template-columns: 48px 370px 90px 150px !important;
+        gap: 12px !important;
+      }
+      body.is-exporting .rank-head,
+      .rank-canvas.is-exporting .rank-head {
+        padding: 0 0 13px !important;
+        font-size: 10px !important;
+      }
+      body.is-exporting .rank-row,
+      .rank-canvas.is-exporting .rank-row {
+        min-height: 148px !important;
+        padding: 16px 0 !important;
+      }
+      body.is-exporting .rank-number,
+      .rank-canvas.is-exporting .rank-number {
+        font: 700 28px "Space Grotesk", sans-serif !important;
+        top: -12px !important;
+      }
+      body.is-exporting .team-icons,
+      .rank-canvas.is-exporting .team-icons {
+        display: flex !important;
+        gap: 10px !important;
+        align-items: center !important;
+      }
+      body.is-exporting .character-card,
+      .rank-canvas.is-exporting .character-card {
+        width: 82px !important;
+        height: 124px !important;
+      }
+      body.is-exporting .character-card .character,
+      .rank-canvas.is-exporting .character-card .character {
+        width: 72px !important;
+        height: 72px !important;
+        border-radius: 12px !important;
+        margin: 0 auto !important;
+        display: block !important;
+      }
+      body.is-exporting .character-card .weapon,
+      body.is-exporting .character-card .artifact,
+      .rank-canvas.is-exporting .character-card .weapon,
+      .rank-canvas.is-exporting .character-card .artifact {
+        top: 78px !important;
+        width: 34px !important;
+        height: 34px !important;
+        padding: 4px !important;
+      }
+      body.is-exporting .character-card .weapon,
+      .rank-canvas.is-exporting .character-card .weapon {
+        right: 4px !important;
+        left: auto !important;
+      }
+      body.is-exporting .character-card .artifact,
+      .rank-canvas.is-exporting .character-card .artifact {
+        left: 4px !important;
+        right: auto !important;
+      }
+      body.is-exporting .constellation,
+      .rank-canvas.is-exporting .constellation {
+        top: 4px !important;
+        right: 5px !important;
+        left: auto !important;
+        font-size: 11px !important;
+        padding: 3px 5px !important;
+      }
+      body.is-exporting .refinement,
+      .rank-canvas.is-exporting .refinement {
+        top: 99px !important;
+        right: 2px !important;
+        left: auto !important;
+        font-size: 10px !important;
+      }
+      body.is-exporting .cost,
+      body.is-exporting .dps,
+      .rank-canvas.is-exporting .cost,
+      .rank-canvas.is-exporting .dps {
+        font: 700 26px "Space Grotesk", sans-serif !important;
+        letter-spacing: -0.04em !important;
+      }
+      body.is-exporting .rank-head span:nth-child(3),
+      body.is-exporting .cost,
+      .rank-canvas.is-exporting .rank-head span:nth-child(3),
+      .rank-canvas.is-exporting .cost {
+        padding-left: 24px !important;
+      }
+      body.is-exporting .canvas-footer,
+      .rank-canvas.is-exporting .canvas-footer {
+        min-width: 0 !important;
+        padding-top: 20px !important;
+      }
+      .btn-share {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #f0fdf4;
+        border-color: #86efac;
+        color: #15803d;
+        font-weight: 700;
+      }
+      .btn-share:hover {
+        background: #dcfce7;
+        border-color: #4ade80;
+        color: #166534;
+      }
+      .btn-share svg {
+        flex-shrink: 0;
+      }
+      .share-modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.72);
+        backdrop-filter: blur(5px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        padding: 16px;
+      }
+      .share-modal {
+        background: #141619;
+        border: 1px solid #282f38;
+        border-radius: 14px;
+        width: 100%;
+        max-width: 520px;
+        color: #f7f7f7;
+        box-shadow: 0 24px 50px rgba(0, 0, 0, 0.7);
+        animation: rise 0.22s both;
+      }
+      .share-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding: 20px 22px 14px;
+        border-bottom: 1px solid #22272e;
+      }
+      .share-modal-header h3 {
+        margin: 0 0 4px;
+        font: 700 18px "Space Grotesk", sans-serif;
+        color: #fff;
+      }
+      .share-modal-header p {
+        margin: 0;
+        font-size: 12px;
+        color: #94a3b8;
+      }
+      .share-modal-close {
+        background: transparent;
+        border: 0;
+        color: #94a3b8;
+        font-size: 26px;
+        line-height: 1;
+        cursor: pointer;
+        padding: 2px 6px;
+        border-radius: 6px;
+      }
+      .share-modal-close:hover {
+        color: #fff;
+        background: #252b33;
+      }
+      .share-modal-body {
+        padding: 20px 22px;
+      }
+      .share-modal-body label {
+        display: block;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #94a3b8;
+        margin-bottom: 8px;
+      }
+      .share-input-group {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 14px;
+      }
+      .share-input-group input {
+        flex: 1;
+        background: #090a0c;
+        border: 1px solid #2d333b;
+        color: #38bdf8;
+        padding: 10px 12px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-family: monospace;
+        outline: none;
+      }
+      .share-input-group input:focus {
+        border-color: #38bdf8;
+      }
+      .share-input-group .btn {
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+      .share-hint {
+        margin: 0;
+        padding: 12px 14px;
+        border-radius: 8px;
+        background: #1c2128;
+        border: 1px solid #2d333b;
+        color: #cbd5e1;
+        font-size: 12px;
+        line-height: 1.5;
+      }
+      .toast-notification {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        background: #10b981;
+        color: #fff;
+        padding: 12px 20px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 600;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+        z-index: 2000;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        animation: rise 0.25s both;
+      }
+      .shared-notice-banner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 13px 18px;
+        background: linear-gradient(90deg, #f0f9ff, #f8fafc);
+        border: 1.5px solid #7dd3fc;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+        animation: rise 0.25s both;
+      }
+      .shared-notice-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+      }
+      .shared-notice-pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 10px;
+        background: #e0f2fe;
+        border: 1px solid #38bdf8;
+        border-radius: 6px;
+        color: #0369a1;
+        font: 800 11px "Space Grotesk", sans-serif;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+      .shared-notice-info {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+      }
+      .shared-notice-title {
+        color: #0f172a;
+        font-size: 13.5px;
+        font-weight: 700;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .shared-notice-title strong {
+        color: #0284c7;
+      }
+      .shared-notice-sub {
+        color: #1e293b;
+        font-size: 12.5px;
+        font-weight: 500;
+        line-height: 1.4;
+      }
+      .shared-notice-sub .highlight-text {
+        color: #0369a1;
+        font-weight: 700;
+      }
+      .shared-notice-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+      }
+      .btn-sm {
+        padding: 7px 12px;
+        font-size: 12px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+      }
+      .btn-return {
+        background: #0f172a;
+        border: 1px solid #0f172a;
+        color: #ffffff;
+        font-weight: 700;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.15);
+      }
+      .btn-return:hover {
+        background: #1e293b;
+        border-color: #1e293b;
+        color: #ffffff;
+      }
+      .btn-adopt {
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        color: #1e293b;
+        font-weight: 600;
+      }
+      .btn-adopt:hover {
+        background: #f1f5f9;
+        border-color: #94a3b8;
+        color: #0f172a;
+      }
+      @media (max-width: 768px) {
+        .shared-notice-banner {
+          flex-direction: column;
+          align-items: stretch;
+          padding: 12px 14px;
+          gap: 12px;
         }
-        .rank-head,
-        .rank-row {
-          min-width: 575px;
-          grid-template-columns: 32px 370px 54px 100px;
-          gap: 10px;
+        .shared-notice-actions {
+          width: 100%;
+          justify-content: flex-end;
         }
-        .character-card {
-          width: 68px;
-          height: 105px;
-        }
-        .character-card .character {
-          width: 57px;
-          height: 57px;
-        }
-        .character-card .weapon,
-        .character-card .artifact {
-          top: 62px;
-          width: 29px;
-          height: 29px;
-        }
-        .character-card .weapon {
-          right: 3px;
-        }
-        .character-card .artifact {
-          left: 3px;
-        }
-        .constellation {
-          top: 3px;
-          right: 4px;
-          font-size: 9px;
-        }
-        .cost,
-        .dps {
-          font-size: 20px;
-        }
-        .canvas-footer {
-          min-width: 575px;
+        .shared-notice-actions .btn {
+          flex: 1;
+          justify-content: center;
         }
       }
       @media print {
@@ -923,7 +1243,8 @@
         }
         .builder,
         .topbar .actions,
-        .preview-toolbar {
+        .preview-toolbar,
+        .shared-notice-banner {
           display: none;
         }
         .app {
@@ -950,6 +1271,10 @@
         </div>
         <div class="actions">
           <button class="btn" id="resetBtn">Reset data</button
+          ><button class="btn btn-share" id="shareBtn" type="button">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+            <span>Bagikan Link</span>
+          </button
           ><button class="btn" id="saveJsonBtn">Simpan Data</button
           ><button class="btn" id="importJsonBtn">Import Data</button
           ><input
@@ -962,6 +1287,30 @@
           </button>
         </div>
       </header>
+
+      <!-- Shared Notice Banner -->
+      <aside class="shared-notice-banner" id="sharedNoticeBanner" style="display: none;">
+        <div class="shared-notice-left">
+          <span class="shared-notice-pill">Mode Tinjauan Link</span>
+          <div class="shared-notice-info">
+            <span class="shared-notice-title">
+              Menampilkan tim: <strong id="sharedOwnerName">Akunku</strong> (<span id="sharedTeamCount">1</span> Tim)
+            </span>
+            <span class="shared-notice-sub">Data tim pribadi Anda tetap aman tersimpan. Klik <span class="highlight-text">"Kembali ke Tim Saya"</span> untuk kembali.</span>
+          </div>
+        </div>
+        <div class="shared-notice-actions">
+          <button class="btn btn-sm btn-return" id="returnMyDataBtn" type="button">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            <span>Kembali ke Tim Saya</span>
+          </button>
+          <button class="btn btn-sm btn-adopt" id="adoptSharedBtn" type="button">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+            <span>Simpan ke Tim Saya</span>
+          </button>
+        </div>
+      </aside>
+
       <div class="mobile-tabs" id="mobileTabs">
         <button type="button" class="mobile-tab-btn active" data-tab="builder">
           ✏️ Edit Team (<span id="mobileTeamCount">1</span>)
@@ -1008,7 +1357,34 @@
         </section>
       </section>
     </main>
+
+    <!-- Modal Bagikan Link -->
+    <div class="share-modal-backdrop" id="shareModal" style="display: none;">
+      <div class="share-modal">
+        <div class="share-modal-header">
+          <div>
+            <h3>Bagikan Tim Anda</h3>
+            <p>Orang lain dapat langsung membuka dan melihat tim Anda tanpa perlu unduh JSON.</p>
+          </div>
+          <button class="share-modal-close" id="closeShareModal" type="button" aria-label="Tutup">&times;</button>
+        </div>
+        <div class="share-modal-body">
+          <label for="shareUrlInput">Link Khusus Tim Anda:</label>
+          <div class="share-input-group">
+            <input type="text" id="shareUrlInput" readonly spellcheck="false" />
+            <button class="btn btn-primary" id="copyShareUrlBtn" type="button">Salin Link</button>
+          </div>
+          <p class="share-hint">
+            💡 <strong>Cara pakai:</strong> Kirimkan link ini ke teman Anda. Saat mereka mengklik link tersebut, susunan tim, DPS, Cost, dan nama akun akan langsung terbuka secara otomatis di browser mereka!
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast-notification" id="toastNotification" style="display: none;"></div>
+
+    <script src="html2canvas.min.js" onerror="this.onerror=null;this.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'"></script>
     <script src="assets.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   </body>
 </html>

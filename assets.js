@@ -11,6 +11,11 @@ window.assetCatalog = {
       file: "asset/character-icons/arlecchino-polearm.png",
     },
     {
+      id: "chevreuse",
+      label: "Chevreuse",
+      file: "asset/character-icons/chevreuse-polearm.png",
+    },
+    {
       id: "gaming",
       label: "Gaming",
       file: "asset/character-icons/gaming-claymore.png",
@@ -194,11 +199,6 @@ window.assetCatalog = {
       id: "columbina",
       label: "Columbina",
       file: "asset/character-icons/columbina-catalyst.png",
-    },
-    {
-      id: "chevreuse",
-      label: "Chevreuse",
-      file: "asset/character-icons/chevreuse-polearm.png",
     },
     {
       id: "cyno",
@@ -2449,18 +2449,16 @@ function renderEditors() {
     toolbar.innerHTML = `<span class="count">${teams.length} / ${maxTeams} Team</span>`
   }
   document.querySelector("#teamEditors").innerHTML = teams
-    .map((team, teamIndex) => {
-      const isCollapsed = collapsedTeams.has(teamIndex)
-      return `<div class="team-form ${isCollapsed ? "collapsed" : ""}" data-team="${teamIndex}"><div class="editor-head team-toggle-head"><div class="team-title-wrap"><strong>Team ${teamIndex + 1}</strong>${isCollapsed ? `<span class="team-badge-dps">${team.dps.toLocaleString("id-ID")} DPS</span><span class="team-badge-cost">Cost ${team.cost}</span>` : ""}</div><div class="team-head-right">${isCollapsed ? `<div class="mini-roster">${team.members.map((m) => `<img src="${characterFile(m[0])}" alt="" title="${m[0]}">`).join("")}</div>` : ""}<button type="button" class="team-toggle-btn ${isCollapsed ? "is-collapsed" : "is-open"}"><span class="btn-arrow">${isCollapsed ? "▼" : "▲"}</span><span>${isCollapsed ? "Buka" : "Tutup"}</span></button>${!isCollapsed && teams.length > 1 ? '<button class="remove-team" type="button" title="Hapus tim" aria-label="Hapus tim"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>' : ""}</div></div><div class="form-row"><label>DPS satu tim<input class="team-dps" type="number" min="0" step="100" value="${team.dps}"></label><label>Cost<input class="team-cost" type="number" min="0" step="1" value="${team.cost}"></label></div><div class="member-list">${team.members
-        .map((member, memberIndex) => {
+    .map(
+      (team, teamIndex) => {
+        const isCollapsed = collapsedTeams.has(teamIndex)
+        return `<div class="team-form ${isCollapsed ? "collapsed" : ""}" data-team="${teamIndex}"><div class="editor-head team-toggle-head"><div class="team-title-wrap"><strong>Team ${teamIndex + 1}</strong>${isCollapsed ? `<span class="team-badge-dps">${team.dps.toLocaleString("id-ID")} DPS</span><span class="team-badge-cost">Cost ${team.cost}</span>` : ""}</div><div class="team-head-right">${isCollapsed ? `<div class="mini-roster">${team.members.map((m) => `<img src="${characterFile(m[0])}" alt="" title="${m[0]}">`).join("")}</div>` : ""}<button type="button" class="team-toggle-btn ${isCollapsed ? "is-collapsed" : "is-open"}"><span class="btn-arrow">${isCollapsed ? "▼" : "▲"}</span><span>${isCollapsed ? "Buka" : "Tutup"}</span></button>${!isCollapsed && teams.length > 1 ? '<button class="remove-team" type="button" title="Hapus tim" aria-label="Hapus tim"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>' : ""}</div></div><div class="form-row"><label>DPS satu tim<input class="team-dps" type="number" min="0" step="100" value="${team.dps}"></label><label>Cost<input class="team-cost" type="number" min="0" step="1" value="${team.cost}"></label></div><div class="member-list">${team.members.map((member, memberIndex) => {
           const charType = characterWeaponTypeMap[member[0]] || "sword"
           const allowedWeapons = weaponOptionsByType[charType] || weaponOptions
           return `<div class="member-row" data-member="${memberIndex}"><span class="slot"><img data-asset-type="characters" src="${characterFile(member[0])}" alt=""></span><label>Karakter${editorAssetMarkup("characters", member[0], characterOptions)}</label><label>Senjata <span style="font-weight:400;opacity:0.7">(${charType})</span>${editorAssetMarkup("weapons", member[1], allowedWeapons, charType)}</label><label>Artefak${editorAssetMarkup("artifacts", member[2], artifactOptions)}</label><div class="member-levels"><label>KONSTELASI<select class="constellation-select">${constellationOptions.map((value) => `<option value="${value}" ${value === member[3] ? "selected" : ""}>C${value}</option>`).join("")}</select></label><label>REFINEMENT<select class="refinement-select">${refinementOptions.map((value) => `<option value="${value}" ${value === (member[4] ?? 1) ? "selected" : ""}>R${value}</option>`).join("")}</select></label></div><button class="remove-member" type="button" aria-label="Hapus anggota">&times;</button></div>`
-        })
-        .join(
-          "",
-        )}</div>${team.members.length < 4 ? '<button class="add-member" type="button">+ Tambah anggota</button>' : '<div class="tip" style="margin-top:9px">Maksimal 4 karakter per tim.</div>'}</div>`
-    })
+        }).join("")}</div>${team.members.length < 4 ? '<button class="add-member" type="button">+ Tambah anggota</button>' : '<div class="tip" style="margin-top:9px">Maksimal 4 karakter per tim.</div>'}</div>`
+      },
+    )
     .join("")
   const addTeamButton = document.querySelector("#addTeamBtn")
   addTeamButton.disabled = teams.length >= maxTeams
@@ -2520,22 +2518,24 @@ function normalizeImportedData(data) {
           )
         : 0,
     members: Array.isArray(team.members)
-      ? team.members.slice(0, 4).map((member) => {
-          const charId = member[0] || "skirk"
-          const charType = characterWeaponTypeMap[charId] || "sword"
-          const validWeps = weaponOptionsByType[charType] || weaponOptions
-          let wepId = member[1] || validWeps[0][0]
-          if (weaponTypeMap[wepId] !== charType) {
-            wepId = validWeps[0][0]
-          }
-          return [
-            charId,
-            wepId,
-            member[2] || "gladiators-finale",
-            Number(member[3]) || 0,
-            Math.max(1, Math.min(5, Number(member[4]) || 1)),
-          ]
-        })
+      ? team.members
+          .slice(0, 4)
+          .map((member) => {
+            const charId = member[0] || "skirk"
+            const charType = characterWeaponTypeMap[charId] || "sword"
+            const validWeps = weaponOptionsByType[charType] || weaponOptions
+            let wepId = member[1] || validWeps[0][0]
+            if (weaponTypeMap[wepId] !== charType) {
+              wepId = validWeps[0][0]
+            }
+            return [
+              charId,
+              wepId,
+              member[2] || "gladiators-finale",
+              Number(member[3]) || 0,
+              Math.max(1, Math.min(5, Number(member[4]) || 1)),
+            ]
+          })
       : [],
   }))
   return {
@@ -2545,24 +2545,261 @@ function normalizeImportedData(data) {
   }
 }
 const localDataKey = "dps-rank-studio-data"
+const localBackupKey = "dps-rank-studio-backup"
+let isViewingShared = false
+let myPersonalData = null
+
 function saveLocalData() {
+  if (isViewingShared) return
   try {
-    localStorage.setItem(
-      localDataKey,
-      JSON.stringify({ version: 1, accountName, teams }),
-    )
+    const payload = JSON.stringify({ version: 1, accountName, teams })
+    localStorage.setItem(localDataKey, payload)
+    localStorage.setItem(localBackupKey, payload)
   } catch (error) {}
 }
+
 function loadLocalData() {
   try {
-    const saved = localStorage.getItem(localDataKey)
-    if (!saved) return
+    const saved = localStorage.getItem(localDataKey) || localStorage.getItem(localBackupKey)
+    if (!saved) return false
     const data = normalizeImportedData(JSON.parse(saved))
     accountName = data.accountName
     teams = data.teams.slice(0, maxTeams)
+    return true
   } catch (error) {
-    localStorage.removeItem(localDataKey)
+    return false
   }
+}
+
+function showSharedBanner(name, count) {
+  const banner = document.querySelector("#sharedNoticeBanner")
+  const nameEl = document.querySelector("#sharedOwnerName")
+  const countEl = document.querySelector("#sharedTeamCount")
+  if (!banner) return
+  if (nameEl) nameEl.textContent = name || "Akunku"
+  if (countEl) countEl.textContent = count || 1
+  banner.style.display = "flex"
+}
+
+function hideSharedBanner() {
+  const banner = document.querySelector("#sharedNoticeBanner")
+  if (banner) banner.style.display = "none"
+}
+
+function returnToMyData() {
+  isViewingShared = false
+  if (window.location.hash.includes("share=") || window.location.hash.includes("data=")) {
+    history.replaceState(null, "", window.location.pathname + window.location.search.replace(/[?&]share=[^&]*/, "").replace(/^&/, "?"))
+  }
+  hideSharedBanner()
+  if (myPersonalData && myPersonalData.teams && myPersonalData.teams.length > 0) {
+    accountName = myPersonalData.accountName
+    teams = JSON.parse(JSON.stringify(myPersonalData.teams))
+  } else {
+    loadLocalData()
+  }
+  document.querySelector("#accountName").value = accountName
+  collapsedTeams = new Set(teams.map((_, i) => i))
+  refresh()
+  showToast("✓ Kembali ke susunan tim Anda!")
+}
+
+function adoptSharedData() {
+  isViewingShared = false
+  if (window.location.hash.includes("share=") || window.location.hash.includes("data=")) {
+    history.replaceState(null, "", window.location.pathname + window.location.search.replace(/[?&]share=[^&]*/, "").replace(/^&/, "?"))
+  }
+  hideSharedBanner()
+  saveLocalData()
+  myPersonalData = {
+    accountName,
+    teams: JSON.parse(JSON.stringify(teams)),
+  }
+  showToast("✓ Tim berhasil disimpan sebagai data utama Anda!")
+}
+
+let toastTimer = null
+function showToast(message, duration = 3500) {
+  const toast = document.querySelector("#toastNotification")
+  if (!toast) return
+  toast.textContent = message
+  toast.style.display = "flex"
+  clearTimeout(toastTimer)
+  toastTimer = setTimeout(() => {
+    toast.style.display = "none"
+  }, duration)
+}
+
+function encodeSharePayload(data) {
+  const compact = {
+    a: (data.accountName || "Akunku").trim(),
+    t: data.teams.map((team) => ({
+      d: Number(team.dps) || 0,
+      c: Number(team.cost) || 0,
+      m: team.members.map((m) => [
+        m[0],
+        m[1],
+        m[2],
+        Number(m[3]) || 0,
+        Number(m[4]) || 1,
+      ]),
+    })),
+  }
+  const jsonStr = JSON.stringify(compact)
+  const bytes = new TextEncoder().encode(jsonStr)
+  let binary = ""
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i])
+  }
+  return btoa(binary)
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "")
+}
+
+function decodeSharePayload(str) {
+  try {
+    if (!str) return null
+    let base64 = str.replace(/-/g, "+").replace(/_/g, "/")
+    while (base64.length % 4) {
+      base64 += "="
+    }
+    const binary = atob(base64)
+    const bytes = new Uint8Array(binary.length)
+    for (let i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i)
+    }
+    const jsonStr = new TextDecoder().decode(bytes)
+    const parsed = JSON.parse(jsonStr)
+
+    if (parsed.t && Array.isArray(parsed.t)) {
+      return normalizeImportedData({
+        accountName: parsed.a || "Akunku",
+        teams: parsed.t.map((t) => ({
+          dps: t.d,
+          cost: t.c,
+          members: t.m,
+        })),
+      })
+    }
+    if (parsed.teams && Array.isArray(parsed.teams)) {
+      return normalizeImportedData(parsed)
+    }
+    return null
+  } catch (err) {
+    console.error("Gagal membaca data share:", err)
+    return null
+  }
+}
+
+function generateShareUrl() {
+  const payload = encodeSharePayload({ accountName, teams })
+  const url = new URL(window.location.href)
+  url.search = ""
+  url.hash = `share=${payload}`
+  return url.toString()
+}
+
+function openShareModal() {
+  const shareUrl = generateShareUrl()
+  const modal = document.querySelector("#shareModal")
+  const input = document.querySelector("#shareUrlInput")
+  const copyBtn = document.querySelector("#copyShareUrlBtn")
+
+  if (input) {
+    input.value = shareUrl
+  }
+
+  if (copyBtn) {
+    copyBtn.textContent = "Salin Link"
+  }
+
+  // Auto-copy ke clipboard saat tombol bagikan ditekan
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      showToast("📋 Link tim berhasil disalin ke clipboard!")
+      if (copyBtn) copyBtn.textContent = "✓ Tersalin!"
+    }).catch(() => {})
+  }
+
+  if (modal) {
+    modal.style.display = "flex"
+    if (input) {
+      setTimeout(() => {
+        input.focus()
+        input.select()
+      }, 50)
+    }
+  }
+}
+
+function closeShareModal() {
+  const modal = document.querySelector("#shareModal")
+  if (modal) modal.style.display = "none"
+}
+
+async function copyShareUrl() {
+  const input = document.querySelector("#shareUrlInput")
+  const copyBtn = document.querySelector("#copyShareUrlBtn")
+  if (!input) return
+  const text = input.value
+
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(text)
+    } else {
+      input.select()
+      document.execCommand("copy")
+    }
+    if (copyBtn) {
+      copyBtn.textContent = "✓ Berhasil Disalin!"
+      setTimeout(() => {
+        if (copyBtn) copyBtn.textContent = "Salin Link"
+      }, 2500)
+    }
+    showToast("📋 Link berhasil disalin!")
+  } catch (err) {
+    input.select()
+    showToast("Silakan tekan Ctrl+C untuk menyalin link.")
+  }
+}
+
+function checkShareUrl() {
+  try {
+    let payload = null
+    const hash = window.location.hash || ""
+    const search = window.location.search || ""
+
+    if (hash.includes("share=")) {
+      payload = hash.split("share=")[1]
+    } else if (hash.includes("data=")) {
+      payload = hash.split("data=")[1]
+    } else if (search.includes("share=")) {
+      const params = new URLSearchParams(search)
+      payload = params.get("share")
+    }
+
+    if (payload) {
+      payload = payload.split("&")[0]
+      const data = decodeSharePayload(payload)
+      if (data && data.teams && data.teams.length > 0) {
+        isViewingShared = true
+        accountName = data.accountName
+        teams = data.teams
+        document.querySelector("#accountName").value = accountName
+        collapsedTeams = new Set(teams.map((_, i) => i))
+        refresh()
+        showSharedBanner(data.accountName, data.teams.length)
+        setTimeout(() => {
+          showToast(`👀 Menampilkan tim dari link "${accountName}". Data pribadi Anda aman tersimpan!`, 4500)
+        }, 300)
+        return true
+      }
+    }
+  } catch (e) {
+    console.error("Error reading shared URL:", e)
+  }
+  return false
 }
 function importJson(event) {
   const file = event.target.files[0]
@@ -2571,11 +2808,24 @@ function importJson(event) {
   reader.onload = () => {
     try {
       const imported = normalizeImportedData(JSON.parse(reader.result))
+      if (isViewingShared) {
+        isViewingShared = false
+        hideSharedBanner()
+        if (window.location.hash.includes("share=") || window.location.hash.includes("data=")) {
+          history.replaceState(null, "", window.location.pathname + window.location.search.replace(/[?&]share=[^&]*/, "").replace(/^&/, "?"))
+        }
+      }
       accountName = imported.accountName
       teams = imported.teams
       document.querySelector("#accountName").value = accountName
       collapsedTeams = new Set(teams.map((_, i) => i))
+      myPersonalData = {
+        accountName,
+        teams: JSON.parse(JSON.stringify(teams)),
+      }
       refresh()
+      saveLocalData()
+      showToast("✓ Data JSON berhasil diimpor!")
     } catch (error) {
       window.alert(
         "JSON tidak bisa diimport. Pastikan file berasal dari DPS Rank Studio.",
@@ -2607,11 +2857,7 @@ function setMobileTab(tab) {
     const isActive = btn.dataset.tab === tab
     btn.classList.toggle("active", isActive)
     if (isActive) {
-      btn.scrollIntoView({
-        behavior: "smooth",
-        inline: "center",
-        block: "nearest",
-      })
+      btn.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" })
     }
   })
   if (tab === "builder") {
@@ -2627,23 +2873,99 @@ function setMobileTab(tab) {
   }
 }
 
-async function ensurePreviewVisibleForCapture() {
-  const ws = document.querySelector(".workspace")
-  if (ws && ws.classList.contains("tab-builder") && window.innerWidth <= 900) {
-    setMobileTab("preview")
-    await new Promise((r) => setTimeout(r, 80))
-    return true
+function triggerCanvasDownload(canvas, filename) {
+  return new Promise((resolve, reject) => {
+    try {
+      if (typeof canvas.toBlob === "function") {
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              fallbackDataUrlDownload(canvas, filename, resolve, reject)
+              return
+            }
+            const url = URL.createObjectURL(blob)
+            const link = document.createElement("a")
+            link.download = filename
+            link.href = url
+            link.style.display = "none"
+            document.body.appendChild(link)
+            link.click()
+            setTimeout(() => {
+              try {
+                if (link.parentNode) link.parentNode.removeChild(link)
+                URL.revokeObjectURL(url)
+              } catch (e) {}
+              resolve()
+            }, 500)
+          },
+          "image/png",
+          1.0,
+        )
+      } else {
+        fallbackDataUrlDownload(canvas, filename, resolve, reject)
+      }
+    } catch (err) {
+      reject(err)
+    }
+  })
+}
+
+function fallbackDataUrlDownload(canvas, filename, resolve, reject) {
+  try {
+    const dataUrl = canvas.toDataURL("image/png")
+    const link = document.createElement("a")
+    link.download = filename
+    link.href = dataUrl
+    link.style.display = "none"
+    document.body.appendChild(link)
+    link.click()
+    setTimeout(() => {
+      try {
+        if (link.parentNode) link.parentNode.removeChild(link)
+      } catch (e) {}
+      resolve()
+    }, 500)
+  } catch (err) {
+    reject(err)
   }
-  return false
+}
+
+async function waitAllImagesReady(container) {
+  const images = [...container.querySelectorAll("img")]
+  const promises = images.map((img) => {
+    if (img.complete && img.naturalWidth > 0) return Promise.resolve()
+    return new Promise((resolve) => {
+      const finish = () => {
+        img.removeEventListener("load", finish)
+        img.removeEventListener("error", finish)
+        resolve()
+      }
+      img.addEventListener("load", finish)
+      img.addEventListener("error", finish)
+      setTimeout(finish, 2000)
+    })
+  })
+  await Promise.all(promises)
+}
+
+function getRelativeBounds(child, container) {
+  const cRect = container.getBoundingClientRect()
+  const elRect = child.getBoundingClientRect()
+  return {
+    x: elRect.left - cRect.left + (container.scrollLeft || 0),
+    y: elRect.top - cRect.top + (container.scrollTop || 0),
+    width: elRect.width,
+    height: elRect.height,
+  }
 }
 
 async function downloadPreviewFallback() {
-  await ensurePreviewVisibleForCapture()
   const preview = document.querySelector("#rankCanvas")
-  const bounds = preview.getBoundingClientRect()
-  const width = preview.scrollWidth
-  const height = preview.scrollHeight
-  const exportScale = 3
+  if (!preview) return
+
+  const width = 900
+  const height = preview.scrollHeight || 650
+  const exportScale = 2
   const canvas = document.createElement("canvas")
   canvas.width = width * exportScale
   canvas.height = height * exportScale
@@ -2651,132 +2973,243 @@ async function downloadPreviewFallback() {
   context.imageSmoothingEnabled = true
   context.imageSmoothingQuality = "high"
   context.scale(exportScale, exportScale)
-  context.fillStyle = "#0b0d0f"
+
+  // Background
+  const gradient = context.createLinearGradient(0, 0, width, height)
+  gradient.addColorStop(0, "#101214")
+  gradient.addColorStop(1, "#090a0b")
+  context.fillStyle = gradient
   context.fillRect(0, 0, width, height)
-  const relative = (element) => {
-    const box = element.getBoundingClientRect()
-    return {
-      x: box.left - bounds.left,
-      y: box.top - bounds.top,
-      width: box.width,
-      height: box.height,
-    }
-  }
+
+  const relative = (element) => getRelativeBounds(element, preview)
+
   const title = preview.querySelector(".canvas-title")
-  const titleBox = relative(title)
-  const titleStyle = getComputedStyle(title)
-  context.font = titleStyle.font
-  context.fillStyle = "#f7f7f7"
-  context.fillText("DPS Rank", titleBox.x, titleBox.y + titleBox.height * 0.78)
-  context.fillStyle = "#f5a623"
-  context.fillText(
-    accountName || "Akunku",
-    titleBox.x + context.measureText("DPS Rank ").width,
-    titleBox.y + titleBox.height * 0.78,
-  )
+  if (title) {
+    const titleBox = relative(title)
+    const titleStyle = getComputedStyle(title)
+    context.font = titleStyle.font || "700 32px 'Space Grotesk', sans-serif"
+    context.fillStyle = "#f7f7f7"
+    context.fillText("DPS Rank ", titleBox.x, titleBox.y + titleBox.height * 0.78)
+    context.fillStyle = "#f5a623"
+    context.fillText(
+      accountName || "Akunku",
+      titleBox.x + context.measureText("DPS Rank ").width,
+      titleBox.y + titleBox.height * 0.78,
+    )
+  }
+
+  // Headers
   ;[...preview.querySelectorAll(".rank-head span")].forEach((item) => {
     const box = relative(item)
     const style = getComputedStyle(item)
     context.font = style.font
-    context.fillStyle = style.color
-    context.fillText(item.textContent, box.x, box.y + box.height)
+    context.fillStyle = style.color || "#8d96a5"
+    context.fillText(item.textContent, box.x, box.y + box.height * 0.75)
   })
+
+  // Rows
   ;[...preview.querySelectorAll(".rank-row")].forEach((row) => {
     const rowBox = relative(row)
     context.strokeStyle = "#22262b"
+    context.lineWidth = 1
     context.beginPath()
     context.moveTo(rowBox.x, rowBox.y + rowBox.height)
     context.lineTo(rowBox.x + rowBox.width, rowBox.y + rowBox.height)
     context.stroke()
+
     ;[".rank-number", ".cost", ".dps"].forEach((selector) => {
       const item = row.querySelector(selector)
+      if (!item) return
       const box = relative(item)
       const style = getComputedStyle(item)
       context.font = style.font
-      context.fillStyle = style.color
+      context.fillStyle = style.color || "#f7f7f7"
       context.fillText(item.textContent, box.x, box.y + box.height * 0.72)
     })
   })
+
+  // Images directly from memory without network re-fetch
   const imageElements = [...preview.querySelectorAll("img")]
-  const loadedImages = await Promise.all(
-    imageElements.map((image) => loadCanvasImage(image.src).catch(() => null)),
-  )
-  imageElements.forEach((image, index) => {
-    const loaded = loadedImages[index]
-    if (!loaded) return
-    const box = relative(image)
-    context.drawImage(loaded, box.x, box.y, box.width, box.height)
+  imageElements.forEach((img) => {
+    if (img.complete && img.naturalWidth > 0) {
+      const box = relative(img)
+      try {
+        context.drawImage(img, box.x, box.y, box.width, box.height)
+      } catch (e) {}
+    }
   })
-  ;[...preview.querySelectorAll(".constellation, .refinement")].forEach(
-    (badge) => {
-      const box = relative(badge)
-      const style = getComputedStyle(badge)
-      const isRefinement = badge.classList.contains("refinement")
-      if (!isRefinement) {
-        context.fillStyle = style.backgroundColor
-        context.beginPath()
-        const radius = parseFloat(style.borderRadius) || 4
-        if (context.roundRect) {
-          context.roundRect(box.x, box.y, box.width, box.height, radius)
-        } else {
-          context.rect(box.x, box.y, box.width, box.height)
-        }
-        context.fill()
+
+  // Badges (constellation & refinement)
+  ;[...preview.querySelectorAll(".constellation, .refinement")].forEach((badge) => {
+    const box = relative(badge)
+    const style = getComputedStyle(badge)
+    const isRefinement = badge.classList.contains("refinement")
+    if (!isRefinement) {
+      context.fillStyle = style.backgroundColor || "#2563eb"
+      context.beginPath()
+      const radius = parseFloat(style.borderRadius) || 4
+      if (context.roundRect) {
+        context.roundRect(box.x, box.y, box.width, box.height, radius)
+      } else {
+        context.rect(box.x, box.y, box.width, box.height)
       }
+      context.fill()
+    }
+    context.font = style.font
+    context.fillStyle = style.color || "#fff"
+    context.textAlign = "center"
+    context.textBaseline = "middle"
+    if (isRefinement) {
+      context.shadowColor = "rgba(0, 0, 0, 0.9)"
+      context.shadowBlur = 3
+      context.shadowOffsetX = 0
+      context.shadowOffsetY = 1
+    }
+    context.fillText(
+      badge.textContent.trim(),
+      box.x + box.width / 2,
+      box.y + box.height / 2 + 0.5,
+    )
+    if (isRefinement) {
+      context.shadowColor = "transparent"
+      context.shadowBlur = 0
+      context.shadowOffsetX = 0
+      context.shadowOffsetY = 0
+    }
+    context.textAlign = "left"
+    context.textBaseline = "alphabetic"
+  })
+
+  // Footer
+  const footer = preview.querySelector(".canvas-footer")
+  if (footer) {
+    const footerSpans = footer.querySelectorAll("span")
+    footerSpans.forEach((span) => {
+      const box = relative(span)
+      const style = getComputedStyle(span)
       context.font = style.font
-      context.fillStyle = style.color
-      context.textAlign = "center"
-      context.textBaseline = "middle"
-      if (isRefinement) {
-        context.shadowColor = "rgba(0, 0, 0, 0.9)"
-        context.shadowBlur = 3
-        context.shadowOffsetX = 0
-        context.shadowOffsetY = 1
-      }
-      context.fillText(
-        badge.textContent.trim(),
-        box.x + box.width / 2,
-        box.y + box.height / 2 + 0.5,
-      )
-      if (isRefinement) {
-        context.shadowColor = "transparent"
-        context.shadowBlur = 0
-        context.shadowOffsetX = 0
-        context.shadowOffsetY = 0
-      }
-      context.textAlign = "left"
-      context.textBaseline = "alphabetic"
-    },
-  )
-  const link = document.createElement("a")
-  link.download = `dps-rank-${(accountName || "preview").trim().replace(/\s+/g, "-").toLowerCase()}.png`
-  link.href = canvas.toDataURL("image/png")
-  link.click()
-}
-async function downloadPreview() {
-  await ensurePreviewVisibleForCapture()
-  const preview = document.querySelector("#rankCanvas")
-  if (typeof html2canvas !== "function") {
-    await downloadPreviewFallback()
-    return
+      context.fillStyle = style.color || "#6b7280"
+      context.fillText(span.textContent, box.x, box.y + box.height * 0.75)
+    })
   }
-  const fixedWidth = 1800
-  const sourceWidth = preview.scrollWidth
-  const canvas = await html2canvas(preview, {
-    scale: fixedWidth / sourceWidth,
-    useCORS: true,
-    backgroundColor: null,
-    width: sourceWidth,
-    height: preview.scrollHeight,
-    windowWidth: sourceWidth,
-    windowHeight: preview.scrollHeight,
-    imageTimeout: 0,
-    logging: false,
-  })
-  const link = document.createElement("a")
-  link.download = `dps-rank-${(accountName || "preview").trim().replace(/\s+/g, "-").toLowerCase()}.png`
-  link.href = canvas.toDataURL("image/png")
-  link.click()
+
+  const filename = `dps-rank-${(accountName || "preview").trim().replace(/\s+/g, "-").toLowerCase()}.png`
+  await triggerCanvasDownload(canvas, filename)
+}
+
+async function downloadPreview() {
+  const downloadBtn = document.querySelector("#downloadBtn")
+  if (downloadBtn && downloadBtn.disabled) return
+
+  const originalBtnText = downloadBtn ? downloadBtn.innerHTML : "Download PNG"
+  if (downloadBtn) {
+    downloadBtn.disabled = true
+    downloadBtn.innerHTML = "<span>⏳ Menyiapkan PNG...</span>"
+  }
+
+  const ws = document.querySelector(".workspace")
+  const wasBuilderTab =
+    ws && ws.classList.contains("tab-builder") && window.innerWidth <= 900
+
+  const preview = document.querySelector("#rankCanvas")
+  const scrollContainer = preview ? preview.closest(".preview") : null
+  const prevScrollTop = scrollContainer ? scrollContainer.scrollTop : 0
+  const prevScrollLeft = scrollContainer ? scrollContainer.scrollLeft : 0
+
+  try {
+    if (wasBuilderTab) {
+      setMobileTab("preview")
+      await new Promise((r) => setTimeout(r, 120))
+    }
+
+    if (!preview) {
+      throw new Error("Rank canvas element not found")
+    }
+
+    // Force consistent desktop layout for export across all devices
+    document.body.classList.add("is-exporting")
+    preview.classList.add("is-exporting")
+
+    // Ensure fonts and images are ready and layout reflow is settled
+    if (document.fonts && document.fonts.ready) {
+      try {
+        await document.fonts.ready
+      } catch (e) {}
+    }
+    await waitAllImagesReady(preview)
+    await new Promise((r) => setTimeout(r, 60))
+
+    if (scrollContainer) {
+      scrollContainer.scrollTop = 0
+      scrollContainer.scrollLeft = 0
+    }
+
+    const filename = `dps-rank-${(accountName || "preview").trim().replace(/\s+/g, "-").toLowerCase()}.png`
+
+    let success = false
+    if (typeof html2canvas === "function") {
+      try {
+        const targetWidth = 900
+        const targetHeight = preview.scrollHeight || 650
+
+        const canvas = await html2canvas(preview, {
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: "#0b0d0f",
+          scrollX: 0,
+          scrollY: 0,
+          x: 0,
+          y: 0,
+          width: targetWidth,
+          height: targetHeight,
+          windowWidth: 1280,
+          windowHeight: targetHeight + 200,
+          imageTimeout: 12000,
+          logging: false,
+          onclone: (clonedDoc) => {
+            clonedDoc.body.classList.add("is-exporting")
+            const clonedCanvas = clonedDoc.querySelector("#rankCanvas")
+            if (clonedCanvas) {
+              clonedCanvas.classList.add("is-exporting")
+              clonedCanvas.style.width = "900px"
+              clonedCanvas.style.minWidth = "900px"
+              clonedCanvas.style.maxWidth = "900px"
+            }
+          },
+        })
+
+        await triggerCanvasDownload(canvas, filename)
+        success = true
+      } catch (err) {
+        console.warn("html2canvas capture error, falling back to direct canvas renderer:", err)
+      }
+    }
+
+    // If html2canvas not available or failed, use bulletproof fallback
+    if (!success) {
+      await downloadPreviewFallback()
+    }
+  } catch (error) {
+    console.error("Download error:", error)
+    window.alert("Gagal mengunduh gambar. Silakan coba kembali.")
+  } finally {
+    document.body.classList.remove("is-exporting")
+    if (preview) {
+      preview.classList.remove("is-exporting")
+    }
+    if (scrollContainer) {
+      scrollContainer.scrollTop = prevScrollTop
+      scrollContainer.scrollLeft = prevScrollLeft
+    }
+    if (wasBuilderTab) {
+      setMobileTab("builder")
+    }
+    if (downloadBtn) {
+      downloadBtn.disabled = false
+      downloadBtn.innerHTML = originalBtnText
+    }
+  }
 }
 document.querySelector("#accountName").addEventListener("input", (event) => {
   accountName = event.target.value
@@ -2986,13 +3419,17 @@ document.querySelector("#addTeamBtn").addEventListener("click", () => {
   collapsedTeams.add(newIndex)
   refresh()
   setTimeout(() => {
-    const target = document.querySelector(`.team-form[data-team="${newIndex}"]`)
+    const target = document.querySelector(
+      `.team-form[data-team="${newIndex}"]`,
+    )
     if (target) {
       target.scrollIntoView({ behavior: "smooth", block: "nearest" })
     }
   }, 40)
 })
 document.querySelector("#resetBtn").addEventListener("click", () => {
+  accountName = "Akunku"
+  document.querySelector("#accountName").value = accountName
   teams = [
     {
       dps: 0,
@@ -3001,7 +3438,29 @@ document.querySelector("#resetBtn").addEventListener("click", () => {
     },
   ]
   collapsedTeams = new Set(teams.map((_, i) => i))
+  if (isViewingShared) {
+    isViewingShared = false
+    hideSharedBanner()
+    if (window.location.hash.includes("share=") || window.location.hash.includes("data=")) {
+      history.replaceState(null, "", window.location.pathname + window.location.search.replace(/[?&]share=[^&]*/, "").replace(/^&/, "?"))
+    }
+  }
+  myPersonalData = {
+    accountName,
+    teams: JSON.parse(JSON.stringify(teams)),
+  }
   refresh()
+  saveLocalData()
+})
+document.querySelector("#returnMyDataBtn")?.addEventListener("click", returnToMyData)
+document.querySelector("#adoptSharedBtn")?.addEventListener("click", adoptSharedData)
+document.querySelector("#shareBtn")?.addEventListener("click", openShareModal)
+document.querySelector("#closeShareModal")?.addEventListener("click", closeShareModal)
+document.querySelector("#copyShareUrlBtn")?.addEventListener("click", copyShareUrl)
+document.querySelector("#shareModal")?.addEventListener("click", (event) => {
+  if (event.target.id === "shareModal") {
+    closeShareModal()
+  }
 })
 document.querySelector("#saveJsonBtn").addEventListener("click", saveJson)
 document
@@ -3022,6 +3481,7 @@ document.addEventListener("click", (event) => {
 })
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
+    closeShareModal()
     document.querySelectorAll(".asset-picker.open").forEach((picker) => {
       picker.classList.remove("open")
     })
@@ -3033,7 +3493,35 @@ document.querySelector("#mobileTabs")?.addEventListener("click", (event) => {
     setMobileTab(btn.dataset.tab)
   }
 })
+window.addEventListener("hashchange", () => {
+  const hash = window.location.hash || ""
+  if (!hash.includes("share=") && !hash.includes("data=")) {
+    if (isViewingShared) {
+      returnToMyData()
+    }
+  } else {
+    checkShareUrl()
+  }
+})
+window.addEventListener("popstate", () => {
+  const hash = window.location.hash || ""
+  if (!hash.includes("share=") && !hash.includes("data=")) {
+    if (isViewingShared) {
+      returnToMyData()
+    }
+  }
+})
+
+// Always load user's personal data from storage first
 loadLocalData()
-document.querySelector("#accountName").value = accountName
-collapsedTeams = new Set(teams.map((_, i) => i))
-refresh()
+myPersonalData = {
+  accountName,
+  teams: JSON.parse(JSON.stringify(teams)),
+}
+
+const loadedFromUrl = checkShareUrl()
+if (!loadedFromUrl) {
+  document.querySelector("#accountName").value = accountName
+  collapsedTeams = new Set(teams.map((_, i) => i))
+  refresh()
+}
